@@ -1,0 +1,68 @@
+# ===== ROS2 / Colcon build artifacts =====
+
+build/
+install/
+log/
+
+# Colcon metadata
+
+.colcon/
+.colcon_install_layout
+
+# CMake
+
+CMakeFiles/
+CMakeCache.txt
+cmake_install.cmake
+Makefile
+
+# Python
+
+**pycache**/
+*.py[cod]
+*.pyo
+*.pyd
+*.egg-info/
+*.egg
+.eggs/
+build/
+dist/
+
+# ROS generated messages/services
+
+*.msg~
+*.srv~
+*.action~
+
+# Editor / IDE
+
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS files
+
+.DS_Store
+Thumbs.db
+
+# Test / coverage
+
+coverage/
+.coverage
+pytest_cache/
+
+# Logs
+
+*.log
+
+# Environment files
+
+.env
+.venv
+venv/
+
+# Misc
+
+*.bak
+*.tmp
