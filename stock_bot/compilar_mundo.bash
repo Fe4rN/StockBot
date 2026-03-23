@@ -1,34 +1,23 @@
 #!/bin/bash
 
-# 1. Obtener la ruta de la carpeta raíz del Repo (StockBot)
-SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )"
-# Subimos un nivel para encontrar la carpeta del paquete real
-REPO_ROOT="$(dirname "$SCRIPT_DIR")"
-PACKAGE_DIR="$REPO_ROOT/stock_bot_my_world"
-WS_SRC="$HOME/turtlebot3_ws/src"
+# 1. Ir a la carpeta raíz del Repo (StockBot) para verlo todo
+cd "$(dirname "$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)")"
 
-echo "Buscando paquete en: $PACKAGE_DIR"
-
-# 2. Crear el enlace simbólico al paquete REAL
-if [ -d "$PACKAGE_DIR" ]; then
-    # Borramos enlace viejo si existe
-    rm -f "$WS_SRC/my_world"
-    echo "Enlazando stock_bot_my_world..."
-    ln -s "$PACKAGE_DIR" "$WS_SRC/my_world"
-else
-    echo "ERROR: No se encuentra la carpeta stock_bot_my_world"
-    exit 1
-fi
-
-# 3. Ir al workspace y compilar
-cd ~/turtlebot3_ws
+# 2. Cargar ROS Jazzy
 source /opt/ros/jazzy/setup.bash
 
-# Limpiamos para evitar que use el package.xml vacío de antes
-rm -rf build/my_world install/my_world
+# 3. Compilar (He movido el log-base al principio, que es donde le gusta)
+colcon --log-base stock_bot/log build \
+  --base-paths stock_bot_my_world \
+  --build-base stock_bot/build \
+  --install-base stock_bot/install \
+  --symlink-install
 
-colcon build --packages-select my_world --symlink-install
+# 4. Cargar la instalación que acabamos de crear
+# Usamos la ruta completa para que no haya pérdida
+source stock_bot/install/setup.bash
 
-# 4. Cargar y lanzar
-source install/setup.bash
-ros2 launch my_world my_world.launch.py
+# 5. Lanzar
+# OJO: Si te dice que no encuentra el paquete, comprueba que en tu 
+# package.xml el <name> sea exactamente stock_bot_my_world
+ros2 launch stock_bot_my_world my_world.launch.py

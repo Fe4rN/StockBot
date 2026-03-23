@@ -26,7 +26,7 @@ def generate_launch_description():
     TURTLEBOT3_MODEL = os.environ['TURTLEBOT3_MODEL']
     model_folder = 'turtlebot3_' + TURTLEBOT3_MODEL
     urdf_path = os.path.join(
-        get_package_share_directory('my_world'),
+        get_package_share_directory('stock_bot_my_world'),
         'models',
         model_folder,
         'model.sdf'
@@ -59,7 +59,7 @@ def generate_launch_description():
     )
 
     bridge_params = os.path.join(
-        get_package_share_directory('my_world'),
+        get_package_share_directory('stock_bot_my_world'),
         'params',
         model_folder+'_bridge.yaml'
     )

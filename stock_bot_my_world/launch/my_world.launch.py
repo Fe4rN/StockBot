@@ -7,7 +7,7 @@ from launch.launch_description_sources import PythonLaunchDescriptionSource
 from launch.substitutions import LaunchConfiguration
 
 def generate_launch_description():
-    launch_file_dir = os.path.join(get_package_share_directory('my_world'), 'launch')
+    launch_file_dir = os.path.join(get_package_share_directory('stock_bot_my_world'), 'launch')
     ros_gz_sim = get_package_share_directory('ros_gz_sim')
 
     use_sim_time = LaunchConfiguration('use_sim_time', default='true')
@@ -15,7 +15,7 @@ def generate_launch_description():
     y_pose = LaunchConfiguration('y_pose', default='-0.5')
 
     world = os.path.join(
-        get_package_share_directory('my_world'),
+        get_package_share_directory('stock_bot_my_world'),
         'worlds',
         'no_roof_small_warehouse.world'
     )
@@ -63,7 +63,7 @@ def generate_launch_description():
 
     set_env_vars_resources = AppendEnvironmentVariable(
     'GZ_SIM_RESOURCE_PATH',
-    get_package_share_directory('my_world')) # Sin el '/models' al final
+    get_package_share_directory('stock_bot_my_world')) # Sin el '/models' al final
 
     ld = LaunchDescription()
 
