@@ -46,19 +46,27 @@ class SimpleNavigator(Node):
         while angle_error < -math.pi: angle_error += 2*math.pi
 
         msg = Twist()
-        if dist < 0.1:
+        if dist < 0.25:
             self.target_x = None
             self.get_logger().info('¡OBJETIVO ALCANZADO!')
             self.vel_pub.publish(msg)
             return
 
-        # Control simple: girar y avanzar
         if abs(angle_error) > 0.1:
-            msg.angular.z = 0.3 if angle_error > 0 else -0.3
+            msg.angular.z = 0.2 if angle_error > 0 else -0.2
             msg.linear.x = 0.0
+            
         else:
             msg.linear.x = 0.15
-            msg.angular.z = 0.0
+            
+            giro_calculado = 1.5 * angle_error 
+            
+            if giro_calculado > 0.2:
+                giro_calculado = 0.2
+            elif giro_calculado < -0.2:
+                giro_calculado = -0.2
+                
+            msg.angular.z = giro_calculado
             
         self.vel_pub.publish(msg)
 
