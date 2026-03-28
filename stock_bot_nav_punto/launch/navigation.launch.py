@@ -40,7 +40,6 @@ def generate_launch_description():
             default_value='true',
             description='Use simulation (Gazebo) clock if true'),
 
-        # BRINGUP DE NAV2
         IncludeLaunchDescription(
             PythonLaunchDescriptionSource([nav2_launch_file_dir, '/bringup_launch.py']),
             launch_arguments={
@@ -56,8 +55,7 @@ def generate_launch_description():
             name='navigator',
             parameters=[{'use_sim_time': use_sim_time}],
             output='screen'),
-
-        # RVIZ2
+            
         Node(
             package='rviz2',
             executable='rviz2',
