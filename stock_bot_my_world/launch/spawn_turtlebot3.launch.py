@@ -35,6 +35,7 @@ def generate_launch_description():
     # Launch configuration variables specific to simulation
     x_pose = LaunchConfiguration('x_pose', default='0.0')
     y_pose = LaunchConfiguration('y_pose', default='0.0')
+    z_pose = LaunchConfiguration('z_pose', default='0.2')
 
     # Declare the launch arguments
     declare_x_position_cmd = DeclareLaunchArgument(
@@ -45,6 +46,10 @@ def generate_launch_description():
         'y_pose', default_value='0.0',
         description='Specify namespace of the robot')
 
+    declare_z_position_cmd = DeclareLaunchArgument(
+        'z_pose', default_value='0.2',
+        description='Specify namespace of the robot')
+
     start_gazebo_ros_spawner_cmd = Node(
         package='ros_gz_sim',
         executable='create',
@@ -53,7 +58,7 @@ def generate_launch_description():
             '-file', urdf_path,
             '-x', x_pose,
             '-y', y_pose,
-            '-z', '0.01'
+            '-z', z_pose
         ],
         output='screen',
     )
@@ -86,6 +91,7 @@ def generate_launch_description():
     # Declare the launch options
     ld.add_action(declare_x_position_cmd)
     ld.add_action(declare_y_position_cmd)
+    ld.add_action(declare_z_position_cmd)
 
     # Add any conditioned actions
     ld.add_action(start_gazebo_ros_spawner_cmd)
