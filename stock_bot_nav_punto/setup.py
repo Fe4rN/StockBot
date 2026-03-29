@@ -21,7 +21,7 @@ setup(
     install_requires=['setuptools'],
     zip_safe=True,
     maintainer='david',
-    maintainer_email='tu@email.com',
+    maintainer_email='107847014+ddcc5305@users.noreply.github.com',
     description='Navegación punto a punto para StockBot',
     license='Apache License 2.0',
     tests_require=['pytest'],
