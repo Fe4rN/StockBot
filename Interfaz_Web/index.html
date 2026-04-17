@@ -1,21 +1,27 @@
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>StockBot</title>
-    <link rel="stylesheet" href="main.css">
-    <link rel="stylesheet" href="index.css">
+
+    <link rel="stylesheet" href="styles/main.css">
+    <link rel="stylesheet" href="styles/index.css">
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/roslib@1/build/roslib.min.js"></script>
+    <script src="scripts/connection.js" defer></script>
 </head>
+
 <body>
     <header>
         <div id="title">
             <h1>StockBot</h1>
         </div>
-        <div id="connection_container">
-            <input type="text" placeholder="Dirección del robot">
-            <button>➜</button>
-        </div>
+        <form id="connection_container">
+            <input id="address" type="text" placeholder="Dirección del robot">
+            <button id="connection_button" type="submit">➜</button>
+        </form>
     </header>
 </body>
+
 </html>
