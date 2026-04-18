@@ -9,7 +9,6 @@
     <link rel="stylesheet" href="styles/main.css">
     <link rel="stylesheet" href="styles/index.css">
     <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/roslib@1/build/roslib.min.js"></script>
-    <script src="scripts/connection.js" defer></script>
 </head>
 
 <body>
@@ -22,6 +21,20 @@
             <button id="connection_button" type="submit">➜</button>
         </form>
     </header>
+
+    <main id="control_panel" style="display: none; padding: 20px; text-align: center;">
+        <h2>Control de Búsqueda de Inventario</h2>
+        <p>Selecciona el destino para buscar el producto:</p>
+        <button onclick="sendRobot(1)">Ir a Estantería 1</button>
+        <button onclick="sendRobot(2)">Ir a Estantería 2</button>
+        
+        <div style="margin-top: 20px;">
+            <h3>Estado de Búsqueda:</h3>
+            <p id="status_text" style="font-weight: bold; font-size: 1.2em;">Esperando orden...</p>
+        </div>
+    </main>
+
+    <script src="scripts/connection.js"></script>
 </body>
 
 </html>
