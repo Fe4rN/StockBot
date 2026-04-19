@@ -38,8 +38,22 @@
             <button onclick="controlPatrol(1)" class="btn-control btn-start">Activar Patrulla</button>
             <button onclick="controlPatrol(0)" class="btn-control btn-stop">Parar Patrulla</button>
         </div>
+        <div class="manual-control">
+            <h3>Control Manual</h3>
+            <div class="control-row">
+                <button class="btn-move" onclick="moveRobot(0.2, 0)">Delante</button>
+            </div>
+            <div class="control-row">
+                <button class="btn-move" onclick="moveRobot(0, 0.5)">Izquierda</button>
+                <button class="btn-move btn-stop-move" onclick="moveRobot(0, 0)">Parar</button>
+                <button class="btn-move" onclick="moveRobot(0, -0.5)">Derecha</button>
+            </div>
+            <div class="control-row">
+                <button class="btn-move" onclick="moveRobot(-0.2, 0)">Atrás</button>
+            </div>
+        </div>
     </main>
-
+    
     <script src="scripts/connection.js"></script>
 </body>
 
