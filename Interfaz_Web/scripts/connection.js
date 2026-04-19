@@ -161,3 +161,41 @@ function subscribeToCameraResults() {
         }
     });
 }
+
+/**
+ * Llama al servicio de patrulla de StockBot.
+ * @param {number} command - 1 para iniciar, 0 para detener.
+ */
+function controlPatrol(command) {
+    if (!data.connected) {
+        alert("Primero conéctate al robot");
+        return;
+    }
+
+    // Definición del cliente del servicio
+    let patrolClient = new ROSLIB.Service({
+        ros : data.ros,
+        name : '/control_patrulla',
+        serviceType : 'stock_bot_interfaces/srv/GoToPoint'
+    });
+
+    // Petición: id 1 (ON) o id 0 (OFF)
+    let request = new ROSLIB.ServiceRequest({
+        point_id : command
+    });
+
+    let statusElement = document.getElementById("status_text");
+    statusElement.innerText = (command === 1) ? "Iniciando patrulla..." : "Deteniendo robot...";
+    statusElement.style.color = "blue";
+
+    // Llamada al servicio
+    patrolClient.callService(request, function(result) {
+        if(result.success) {
+            statusElement.innerText = result.message;
+            statusElement.style.color = (command === 1) ? "green" : "black";
+        } else {
+            statusElement.innerText = "Fallo en patrulla: " + result.message;
+            statusElement.style.color = "red";
+        }
+    });
+}

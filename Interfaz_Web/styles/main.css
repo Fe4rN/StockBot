@@ -9,3 +9,35 @@ body {
   padding: 0;
   margin: 0;
 }
+
+/* Contenedor de la sección de patrulla */
+.patrol-management {
+  margin-top: 20px;
+  border-top: 1px solid #ddd;
+  padding-top: 15px;
+}
+
+/* Estilo base para los botones de control */
+.btn-control {
+  border: none;
+  color: white;
+  padding: 10px 20px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-family: 'Rubik', sans-serif;
+  font-weight: 500;
+  transition: opacity 0.2s;
+}
+
+.btn-control:hover {
+  opacity: 0.8;
+}
+
+/* Variantes de color */
+.btn-start {
+  background-color: #13a200;
+}
+
+.btn-stop {
+  background-color: #fb532b;
+}

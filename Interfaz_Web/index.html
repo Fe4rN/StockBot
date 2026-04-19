@@ -25,12 +25,18 @@
     <main id="control_panel" style="display: none; padding: 20px; text-align: center;">
         <h2>Control de Búsqueda de Inventario</h2>
         <p>Selecciona el destino para buscar el producto:</p>
-        <button onclick="sendRobot(1)">Ir a Estantería 1</button>
-        <button onclick="sendRobot(2)">Ir a Estantería 2</button>
+        <button onclick="sendRobot(1)">Ir al punto 1 (Estantería)</button>
+        <button onclick="sendRobot(2)">Ir al punto 2 (Cajas)</button>
         
         <div style="margin-top: 20px;">
             <h3>Estado de Búsqueda:</h3>
             <p id="status_text" style="font-weight: bold; font-size: 1.2em;">Esperando orden...</p>
+        </div>
+
+        <div class="patrol-management">
+            <h3>Gestión de Patrulla</h3>
+            <button onclick="controlPatrol(1)" class="btn-control btn-start">Activar Patrulla</button>
+            <button onclick="controlPatrol(0)" class="btn-control btn-stop">Parar Patrulla</button>
         </div>
     </main>
 
