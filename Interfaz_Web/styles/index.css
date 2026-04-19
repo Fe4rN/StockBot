@@ -4,6 +4,12 @@ header {
     align-items: flex-start;
 }
 
+#control_panel{
+    /*display: none;*/
+    padding: 2rem; 
+    text-align: center;
+}
+
 h1 {
     font-size: 3rem;
 }
@@ -69,22 +75,20 @@ input:-webkit-autofill {
 
 .main-content{
     display: flex;
-    justify-content: space-between;
+    justify-content: space-around;
 }
 
 #inventario{
-    /*display: none;*/
     height: auto;
     width: 50rem;
 }
 
 #divCamera{
-  height: auto;
+  height: 40rem;
   width: 50rem;
-  align-items: center;
 }
 
 #cameraFeed{
     width: 100%;
-    height: 40rem;
+    height: auto;
 }

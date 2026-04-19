@@ -16,6 +16,7 @@ let connection_button = document.getElementById("connection_button");
 let address_input = document.getElementById("address");
 let control_panel = document.getElementById("control_panel"); // Guardamos la referencia al panel
 
+
 //  Colores de feedback de conexión
 let connectionColor = "#13a200";
 let disconnectedColor = "#fb532b";
