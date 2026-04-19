@@ -1,5 +1,8 @@
 #!/bin/bash
 
+#0. Exportar modelo con camara
+export TURTLEBOT3_MODEL=burger_cam
+
 # 1. Ir a la carpeta raíz
 cd "$(dirname "$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)")"
 
