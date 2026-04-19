@@ -41,3 +41,40 @@ body {
 .btn-stop {
   background-color: #fb532b;
 }
+
+/* =========================================
+   Control Manual (Cruceta de movimiento)
+========================================= */
+
+.manual-control {
+  margin-top: 20px;
+}
+
+.control-row {
+  margin-bottom: 5px;
+}
+
+/* Estilo para los botones de movimiento (Delante, Atrás, Izq, Der) */
+.btn-move {
+  width: 100px;
+  padding: 10px;
+  cursor: pointer;
+  border-radius: 3px;
+  border: 1px solid #ccc; 
+  background-color: #f8f9fa; 
+}
+
+.btn-move:hover {
+  background-color: #e2e6ea;
+}
+
+/* Estilo exclusivo para el botón de Parar del centro */
+.btn-stop-move {
+  background-color: #fb532b;
+  color: white;
+  border: none;
+}
+
+.btn-stop-move:hover {
+  background-color: #d84320;
+}

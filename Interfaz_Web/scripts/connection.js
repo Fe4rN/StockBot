@@ -200,3 +200,53 @@ function controlPatrol(command) {
         }
     });
 }
+
+// ---------------------------------------------------------
+// --- CONTROL MANUAL POR TOPICS (/cmd_vel) ----------------
+// ---------------------------------------------------------
+
+/**
+ * Publica velocidades directamente al topic /cmd_vel
+ * @param {number} linearX - Velocidad lineal (positiva=delante, negativa=atrás)
+ * @param {number} angularZ - Velocidad angular (positiva=izquierda, negativa=derecha)
+ */
+function moveRobot(linearX, angularZ) {
+    if (!data.connected) {
+        alert("Primero conéctate al robot");
+        return;
+    }
+
+    // Definimos el Topic
+    let cmdVelTopic = new ROSLIB.Topic({
+        ros: data.ros,
+        name: '/cmd_vel',
+        // Usamos TwistStamped tal y como pedía el simulador en tus colabs anteriores
+        messageType: 'geometry_msgs/msg/TwistStamped' 
+    });
+
+    // Construimos el mensaje de velocidad
+    let twistMessage = new ROSLIB.Message({
+        header: { 
+            stamp: {sec: 0, nanosec: 0}, 
+            frame_id: "base_link" 
+        },
+        twist: { 
+            linear: { x: linearX, y: 0.0, z: 0.0 }, 
+            angular: { x: 0.0, y: 0.0, z: angularZ } 
+        }
+    });
+
+    // Publicamos el mensaje en ROS
+    cmdVelTopic.publish(twistMessage);
+    
+    // Actualizamos el texto de estado en la web para tener feedback
+    let statusElement = document.getElementById("status_text");
+    if (linearX === 0 && angularZ === 0) {
+        statusElement.innerText = "Robot parado manualmente.";
+        statusElement.style.color = "black";
+    } else {
+        statusElement.innerText = "Teleoperación manual activa...";
+        statusElement.style.color = "blue";
+    }
+}
+

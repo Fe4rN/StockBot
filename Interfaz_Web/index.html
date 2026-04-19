@@ -48,8 +48,22 @@
                 <img id="cameraFeed" src="http://localhost:8080/stream topic=/camera/image.raw">
             </div>
         </div>
+        <div class="manual-control">
+            <h3>Control Manual</h3>
+            <div class="control-row">
+                <button class="btn-move" onclick="moveRobot(0.2, 0)">Delante</button>
+            </div>
+            <div class="control-row">
+                <button class="btn-move" onclick="moveRobot(0, 0.5)">Izquierda</button>
+                <button class="btn-move btn-stop-move" onclick="moveRobot(0, 0)">Parar</button>
+                <button class="btn-move" onclick="moveRobot(0, -0.5)">Derecha</button>
+            </div>
+            <div class="control-row">
+                <button class="btn-move" onclick="moveRobot(-0.2, 0)">Atrás</button>
+            </div>
+        </div>
     </main>
-
+    
     <script src="scripts/connection.js"></script>
     <script src="scripts/camera.js"></script>
 </body>
