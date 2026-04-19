@@ -66,3 +66,25 @@ input:-webkit-autofill {
     border: none;
     cursor: pointer;
 }
+
+.main-content{
+    display: flex;
+    justify-content: space-between;
+}
+
+#inventario{
+    /*display: none;*/
+    height: auto;
+    width: 50rem;
+}
+
+#divCamera{
+  height: auto;
+  width: 50rem;
+  align-items: center;
+}
+
+#cameraFeed{
+    width: 100%;
+    height: 40rem;
+}

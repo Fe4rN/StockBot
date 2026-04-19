@@ -22,25 +22,36 @@
         </form>
     </header>
 
-    <main id="control_panel" style="display: none; padding: 20px; text-align: center;">
-        <h2>Control de Búsqueda de Inventario</h2>
-        <p>Selecciona el destino para buscar el producto:</p>
-        <button onclick="sendRobot(1)">Ir al punto 1 (Estantería)</button>
-        <button onclick="sendRobot(2)">Ir al punto 2 (Cajas)</button>
-        
-        <div style="margin-top: 20px;">
-            <h3>Estado de Búsqueda:</h3>
-            <p id="status_text" style="font-weight: bold; font-size: 1.2em;">Esperando orden...</p>
-        </div>
+    <main id="control_panel" style="padding: 2rem; text-align: center;">
 
-        <div class="patrol-management">
-            <h3>Gestión de Patrulla</h3>
-            <button onclick="controlPatrol(1)" class="btn-control btn-start">Activar Patrulla</button>
-            <button onclick="controlPatrol(0)" class="btn-control btn-stop">Parar Patrulla</button>
+        <div class="main-content">
+            <div id="inventario">
+                <h2>Control de Búsqueda de Inventario</h2>
+                
+                <p>Selecciona el destino para buscar el producto:</p>
+                <button onclick="sendRobot(1)">Ir al punto 1 (Estantería)</button>
+                <button onclick="sendRobot(2)">Ir al punto 2 (Cajas)</button>
+                
+                <div style="margin-top: 20px;">
+                    <h3>Estado de Búsqueda:</h3>
+                    <p id="status_text" style="font-weight: bold; font-size: 1.2em;">Esperando orden...</p>
+                </div>
+
+                <div class="patrol-management">
+                    <h3>Gestión de Patrulla</h3>
+                    <button onclick="controlPatrol(1)" class="btn-control btn-start">Activar Patrulla</button>
+                    <button onclick="controlPatrol(0)" class="btn-control btn-stop">Parar Patrulla</button>
+                </div>
+            </div>
+            
+            <div id="divCamera">
+                <img id="cameraFeed" src="http://localhost:8080/stream topic=/camera/image.raw">
+            </div>
         </div>
     </main>
 
     <script src="scripts/connection.js"></script>
+    <script src="scripts/camera.js"></script>
 </body>
 
 </html>
