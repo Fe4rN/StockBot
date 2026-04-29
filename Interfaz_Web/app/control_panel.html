@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>StockBot - Panel de Control</title>
+    <link rel="stylesheet" href="styles/main.css">
+    <!-- Librerías Necesarias -->
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/roslib@1/build/roslib.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/js-yaml@4.1.0/dist/js-yaml.min.js"></script>
+</head>
+<body>
+    <header>
+        <h1>StockBot: Localización y Patrulla</h1>
+    </header>
+
+    <main class="main-content">
+        <!-- Contenedor del Mapa -->
+        <div id="map_container">
+            <h3>Mapa del Almacén</h3>
+            <canvas id="mapCanvas"></canvas>
+        </div>
+
+        <!-- Panel de control de patrulla -->
+        <div class="patrol-management">
+            <h3>Gestión de Patrulla</h3>
+            <button onclick="controlPatrol(1)" class="btn-control btn-start">Activar Patrulla</button>
+            <button onclick="controlPatrol(0)" class="btn-control btn-stop">Parar Patrulla</button>
+            <p id="status_text">Esperando conexión...</p>
+        </div>
+    </main>
+
+    <!-- Scripts: el de conexión primero y luego el del mapa -->
+    <script src="scripts/connection.js"></script>
+    <script src="scripts/map_web.js"></script>
+</body>
+</html>
