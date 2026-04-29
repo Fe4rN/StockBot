@@ -1,68 +1,23 @@
-header {
-    color: whitesmoke;
-    display: flex;
-    align-items: flex-start;
+#descripcion {
+    color: rgb(50, 155, 204);
+    text-align: left;
+    padding: 250px 10% 10px 10%;
 }
 
 h1 {
-    font-size: 3rem;
+    font-size: 60px;
+    margin: 0px;
 }
 
-#title {
-    padding: 0 30px;
-    border-radius: 0 0 50px 0;
-    background: #79c3ff;
-    display: flex;
-    align-items: center;
+#subtitle {
+    font-size: 40px;
+    margin-top: 0px;
 }
 
-#connection_container {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    height: 65px;
-    width: 17%;
-    background: #fb532b;
-    padding: 0 12px;
-    border-radius: 0 0 25px 0;
-    gap: 8px;
+button{
+    margin-right: 30px;
 }
 
-input {
-    flex: 1;
-    min-width: 0;
-    height: 60%;
-    background-color: transparent;
-    font-size: 1.5rem;
-    border: none;
-    color: white;
-    outline: none;
-    border-bottom: 2px solid transparent;
-}
-
-input:focus {
-    border-bottom: 2px solid white;
-}
-
-input::placeholder {
-    color: rgba(255, 255, 255, 0.6);
-}
-
-input:-webkit-autofill {
-    -webkit-box-shadow: 0 0 0px 1000px transparent inset;
-    -webkit-text-fill-color: inherit;
-}
-
-#connection_container button {
-    color: white;
-    height: 60%;
-    aspect-ratio: 1;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 1rem;
-    padding: 0;
-    background: transparent;
-    border: none;
-    cursor: pointer;
+body {
+    background: #dcf7ff
 }
