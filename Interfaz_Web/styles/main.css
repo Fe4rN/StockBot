@@ -48,3 +48,19 @@ body {
   transform: scale(1.1);
   cursor: pointer;
 }
+
+#map_container {
+    max-width: 500px; /* O el tamaño que quieras que ocupe en la web */
+    margin: 20px auto;
+    border: 3px solid #79c3ff;
+    border-radius: 15px;
+    overflow: hidden; /* Corta lo que sobre si fuera necesario */
+    background-color: #f0f0f0;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+}
+
+#mapCanvas {
+    width: 100%;  /* Esto escala la imagen enormemente grande al tamaño del contenedor */
+    height: auto; /* Mantiene la proporción */
+    display: block;
+}

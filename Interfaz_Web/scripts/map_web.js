@@ -1,20 +1,38 @@
 /**
- * Lógica para la visualización del mapa y posición del robot.
- * StockBot 2026
+ * @file map_web.js
+ * @description Gestión de la visualización cartográfica y localización en tiempo real del robot.
+ * Realiza la transformación de coordenadas entre el sistema de referencia de ROS 2 (metros) 
+ * y el sistema de renderizado del Canvas HTML (píxeles).
+ * * @author David Bayona Lujan
+ * @project StockBot
+ * @date Mayo 2026
  */
 
-// Configuración de rutas
+// --- CONFIGURACIÓN DE RECURSOS ESTÁTICOS ---
 const mapYamlUrl = 'static/map.yaml'; 
-const mapImageUrl = 'static/map.pgm'; 
+const mapImageUrl = 'static/map.png'; 
 
+// --- VARIABLES DE ESTADO ---
+/** @type {Object|null} Metadatos técnicos del mapa (resolución, origen) cargados desde el YAML. */
 let mapInfo = null;
+
+/** @type {HTMLCanvasElement} Elemento del DOM donde se renderiza el mapa. */
 let canvas = document.getElementById("mapCanvas");
+
+/** @type {CanvasRenderingContext2D} Contexto de dibujo 2D para el renderizado. */
 let ctx = canvas.getContext("2d");
+
+/** @type {HTMLImageElement} Objeto de imagen que contiene el plano del almacén. */
 let mapImage = new Image();
+
+/** @type {Object} Almacena la posición actual del robot en coordenadas reales (metros). */
 let robotPosition = { x: 0, y: 0 };
 
 /**
- * Carga el archivo YAML y la imagen del mapa.
+ * @function loadMapData
+ * @description Recupera de forma asíncrona los metadatos del mapa desde un archivo YAML 
+ * y dispara la carga de la imagen asociada (.png).
+ * @throws {Error} Si el archivo YAML no es accesible o el formato es inválido.
  */
 function loadMapData() {
     fetch(mapYamlUrl)
@@ -28,26 +46,26 @@ function loadMapData() {
 }
 
 /**
- * Dibuja el mapa y el robot (punto verde) en el canvas.
+ * @function draw
+ * @description Ciclo de renderizado principal. Limpia el canvas, dibuja el mapa de fondo 
+ * y superpone la posición del robot mediante una transformación de coordenadas ROS -> Canvas.
+ * * La fórmula utilizada para la transformación es: 
+ * pixel = (posicion_metros - origen_metros) / resolucion_metros_pixel.
  */
 function draw() {
     if (!mapInfo || !mapImage.complete) return;
 
-    // 1. Limpiar canvas y dibujar fondo
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     ctx.drawImage(mapImage, 0, 0);
 
-    // 2. Transformación de coordenadas ROS -> Píxeles
     const res = mapInfo.resolution;
-    const origin = mapInfo.origin; // [x, y, z]
+    const origin = mapInfo.origin;
 
-    // Fórmula del Colab: (Posición - Origen) / Resolución
     let pixelX = (robotPosition.x - origin[0]) / res;
     let pixelY = canvas.height - ((robotPosition.y - origin[1]) / res); 
 
-    // 3. Dibujar al StockBot
     ctx.beginPath();
-    ctx.fillStyle = '#13a200'; // Verde StockBot
+    ctx.fillStyle = '#13a200'; 
     ctx.arc(pixelX, pixelY, 6, 0, 2 * Math.PI);
     ctx.fill();
     ctx.strokeStyle = "white";
@@ -56,26 +74,35 @@ function draw() {
 }
 
 /**
- * Suscripción al topic de odometría.
+ * @function initMapPoseSubscription
+ * @description Inicializa la comunicación con ROS 2 mediante Rosbridge para recibir la 
+ * localización corregida (Global Localization) a través del topic /amcl_pose.
  */
-function initOdomSubscription() {
-    let odomTopic = new ROSLIB.Topic({
-        ros: data.ros, // Usa la conexión global definida en connection.js
-        name: '/odom',
-        messageType: 'nav_msgs/msg/Odometry'
+function initMapPoseSubscription() {
+    let amclPoseTopic = new ROSLIB.Topic({
+        ros: data.ros,
+        name: '/amcl_pose',
+        messageType: 'geometry_msgs/msg/PoseWithCovarianceStamped'
     });
 
-    odomTopic.subscribe((message) => {
+    amclPoseTopic.subscribe((message) => {
         robotPosition.x = message.pose.pose.position.x;
         robotPosition.y = message.pose.pose.position.y;
         draw(); 
     });
 }
 
-// Iniciar carga del mapa al cargar el script
+// --- GESTORES DE EVENTOS ---
+
+/**
+ * Al completar la carga de la imagen, se ajustan las dimensiones del canvas 
+ * al tamaño real de la imagen para evitar distorsiones en el escalado.
+ */
 mapImage.onload = () => {
     canvas.width = mapImage.width;
     canvas.height = mapImage.height;
     draw();
 };
+
+// Disparo inicial de carga de datos
 loadMapData();
