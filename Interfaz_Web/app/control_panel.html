@@ -10,30 +10,112 @@
     <script src="https://cdn.jsdelivr.net/npm/js-yaml@4.1.0/dist/js-yaml.min.js"></script>
 </head>
 <body>
-    <header>
-            <div class="right-head head-div">
-                <h1>StockBot</h1>
+    <div class="app">
+        <aside class="sidebar">
+            <div class="logo">StockBot</div>
+            <div class="sidebar-buttons">
+                <h3 class="sidebar-title">Mis Robots</h3>
+                <nav class="robot-list">
+                    <button class="robot-btn">StockBot 1</button>
+                    <button class="robot-btn">StockBot 2</button>
+                    <button class="robot-btn">StockBot 3</button>
+                    <button class="robot-btn active">StockBot 4</button>
+                    <button class="robot-btn">BayonaBot</button>
+                    <button class="robot-btn">StockBot 5</button>
+                </nav>
+                <button class="add-robot-btn">Añadir robot</button>
             </div>
-            <div class="left-head head-div">
-                <h2>Usuario</h2>
-            </div>
-    </header>
+        </aside>
 
-    <main class="main-content">
-        <!-- Contenedor del Mapa -->
-        <div id="map_container">
-            <h3>Mapa del Almacén</h3>
-            <canvas id="mapCanvas"></canvas>
-        </div>
+        <main class="main">
+            <header class="topbar">
+                <div class="user">
+                <span>Xx_SuperPayico_xX</span>
+                <div class="avatar">
+                    <svg viewBox="0 0 24 24" width="28" height="28" fill="#fff">
+                    <path d="M12 12c2.7 0 5-2.3 5-5s-2.3-5-5-5-5 2.3-5 5 2.3 5 5 5zm0 2c-3.3 0-10 1.7-10 5v3h20v-3c0-3.3-6.7-5-10-5z"/>
+                    </svg>
+                </div>
+                </div>
+            </header>
+            <div class="content">
+                <!-- Left column -->
+                <section class="left-col">
+                    <div class="field-row">
+                        <label class="field-label">Nombre</label>
+                        <input type="text" class="field-input" value="StockBot 4" readonly />
+                    </div>
+                    <div class="field-row">
+                        <label class="field-label">Dirección</label>
+                        <input type="text" class="field-input" value="127.0.0.1:9000" readonly />
+                        <button class="arrow-btn">→</button>
+                    </div>
 
-        <!-- Panel de control de patrulla -->
-        <div class="patrol-management">
-            <h3>Gestión de Patrulla</h3>
-            <button onclick="controlPatrol(1)" class="btn-control btn-start">Activar Patrulla</button>
-            <button onclick="controlPatrol(0)" class="btn-control btn-stop">Parar Patrulla</button>
-            <p id="status_text">Esperando conexión...</p>
-        </div>
-    </main>
+                    <div class="mode-banner">
+                        Modo de operación actual: MANUAL
+                    </div>
+
+                    <div class="panels-row">
+                        <div class="panel">
+                        <h4 class="panel-title">Navegar a punto</h4>
+                        <button class="nav-btn">Estantería 1</button>
+                        <button class="nav-btn">Estantería 2</button>
+                        <button class="nav-btn">Cajas 1</button>
+                        <div class="spacer"></div>
+                        <button class="btn-danger">DETENER NAVEGACION</button>
+                        </div>
+
+                        <div class="panel">
+                            <div class="patrol-management">
+                                <h3>Gestión de Patrulla</h3>
+                                <button onclick="controlPatrol(1)" class="btn-control btn-start btn-success">Activar Patrulla</button>
+                                <button onclick="controlPatrol(0)" class="btn-control btn-stop btn-danger">Parar Patrulla</button>
+                                <p id="status_text">Esperando conexión...</p>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+                <!--Right Section-->
+                <section class="right-col">
+                    <div class="tabs-card">
+                        <div class="tabs">
+                            <div class="tab">FEED DE CAMARA</div>
+                            <div class="tab active">MAPA</div>
+                        </div>
+                        <div class="tab-content">
+                            <div id="map_container">
+                                <h3>Mapa del Almacén</h3>
+                                <canvas id="mapCanvas"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="manual-controls">
+                        <h4 class="panel-title">CONTROLES MANUALES</h4>
+                        <div class="dpad">
+                        <div></div>
+                        <button class="dir-btn">DELANTE</button>
+                        <div></div>
+                        <button class="dir-btn">IZQUIERDA</button>
+                        <button class="btn-danger stop">PARAR</button>
+                        <button class="dir-btn">DERECHA</button>
+                        <div></div>
+                        <button class="dir-btn">ATRAS</button>
+                        <div></div>
+                        </div>
+                    </div>
+                </section>
+        
+    
+        </main>
+
+        <main class="main-content">
+            <!-- Contenedor del Mapa -->
+            
+
+            <!-- Panel de control de patrulla -->
+            
+        </main>
+    </div>
 
     <!-- Scripts: el de conexión primero y luego el del mapa -->
     <script src="../scripts/connection.js"></script>
