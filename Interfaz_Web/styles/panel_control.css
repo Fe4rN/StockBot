@@ -134,6 +134,8 @@ body {
   padding: 8px 16px;
   border-radius: 12px;
   font-weight: 700;
+  min-width: 7rem;
+  text-align: center;
 }
 
 .field-input {
@@ -146,6 +148,12 @@ body {
   font-weight: 700;
   color: #111;
   outline: none;
+  width: 100%;
+}
+
+#connection_container{
+  width:100%;
+  display: flex;
 }
 
 .arrow-btn {
