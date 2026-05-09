@@ -66,9 +66,6 @@ function attempt_connection(robot_address) {
         console.log("Error al conectar");
         
         // --- PROTECCIÓN ---
-        if (connection_box) { 
-            connection_box.style.backgroundColor = disconnectedColor; 
-        }
         if (connection_button) { 
             connection_button.textContent = connect_button; 
         }
@@ -86,9 +83,6 @@ function attempt_connection(robot_address) {
         console.log("Conexion cerrada");
         
         // --- PROTECCIÓN ---
-        if (connection_box) { 
-            connection_box.style.backgroundColor = disconnectedColor; 
-        }
         if (connection_button) { 
             connection_button.textContent = connect_button; 
         }
@@ -219,6 +213,7 @@ function controlPatrol(command) {
     });
 
     let statusElement = document.getElementById("status_text");
+    let modeBanner = document.getElementById("mode-banner");
     statusElement.innerText = (command === 1) ? "Iniciando patrulla..." : "Deteniendo robot...";
     statusElement.style.color = "blue";
 
@@ -227,6 +222,7 @@ function controlPatrol(command) {
         if(result.success) {
             statusElement.innerText = result.message;
             statusElement.style.color = (command === 1) ? "green" : "black";
+            modeBanner.innerText = "Modo de operación actual: PATRULLA"
         } else {
             statusElement.innerText = "Fallo en patrulla: " + result.message;
             statusElement.style.color = "red";
@@ -300,3 +296,24 @@ function moveRobot(linearX, angularZ) {
     });
 })();
 // ========================================================
+
+
+function tabChanger(num_tab){
+    tab_camara=document.getElementById("tab-camara");
+    tab_mapa=document.getElementById("tab-mapa");
+    map_container=document.getElementById("map-container");
+    cam_container=document.getElementById("cam-container");
+
+    if(num_tab==1 && tab_mapa.classList.contains("active")){
+        tab_camara.classList.add("active");
+        tab_mapa.classList.remove("active");
+        map_container.style.display= "none";
+        cam_container.style.display= "block";
+    }else if(num_tab==2 && tab_camara.classList.contains("active")){
+        tab_camara.classList.remove("active");
+        tab_mapa.classList.add("active");
+        map_container.style.display= "block";
+        cam_container.style.display= "none";
+    }
+    
+}
