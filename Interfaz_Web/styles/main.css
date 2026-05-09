@@ -7,8 +7,11 @@
 
 * {
   font-family: 'Rubik', sans-serif;
-  padding: 0;
   margin: 0;
+}
+
+#cta-container{
+  margin-top: 2rem;
 }
 
 /*Boton principal*/
@@ -19,7 +22,6 @@
   font-size: 20px;
   background-color: rgb(245, 245, 245);
   border: 0px;
-  padding: 20px 40px 20px 40px;
   border-radius: 10px;
   border: 3px solid rgb(55, 183, 243);
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
@@ -38,7 +40,6 @@
   font-size: 20px;
   background-color: rgb(29, 221, 255);
   border: 0px;
-  padding: 20px 40px 20px 40px;
   border-radius: 10px;
   border: 3px solid rgb(55, 183, 243);
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
