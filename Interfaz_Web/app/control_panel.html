@@ -30,12 +30,12 @@
         <main class="main">
             <header class="topbar">
                 <div class="user">
-                <span>Xx_SuperPayico_xX</span>
-                <div class="avatar">
-                    <svg viewBox="0 0 24 24" width="28" height="28" fill="#fff">
-                    <path d="M12 12c2.7 0 5-2.3 5-5s-2.3-5-5-5-5 2.3-5 5 2.3 5 5 5zm0 2c-3.3 0-10 1.7-10 5v3h20v-3c0-3.3-6.7-5-10-5z"/>
-                    </svg>
-                </div>
+                    <span id="header-user">Usuario</span>
+                    <div class="avatar">
+                        <svg viewBox="0 0 24 24" width="28" height="28" fill="#fff">
+                        <path d="M12 12c2.7 0 5-2.3 5-5s-2.3-5-5-5-5 2.3-5 5 2.3 5 5 5zm0 2c-3.3 0-10 1.7-10 5v3h20v-3c0-3.3-6.7-5-10-5z"/>
+                        </svg>
+                    </div>
                 </div>
             </header>
             <div class="content">
@@ -59,12 +59,9 @@
 
                     <div class="panels-row">
                         <div class="panel">
-                        <h4 class="panel-title">Navegar a punto</h4>
-                        <button class="nav-btn">Estantería 1</button>
-                        <button class="nav-btn">Estantería 2</button>
-                        <button class="nav-btn">Cajas 1</button>
-                        <div class="spacer"></div>
-                        <button class="btn-danger">DETENER NAVEGACION</button>
+                            <h4 class="panel-title">Navegar a punto</h4>
+                            <button class="nav-btn" onclick="sendRobot(1)">Estantería 1</button>
+                            <button class="nav-btn" onclick="sendRobot(2)">Cajas 1</button>
                         </div>
 
                         <div class="panel">
@@ -81,28 +78,31 @@
                 <section class="right-col">
                     <div class="tabs-card">
                         <div class="tabs">
-                            <div class="tab">FEED DE CAMARA</div>
-                            <div class="tab active">MAPA</div>
+                            <div class="tab" id="tab-camara" onclick="tabChanger(1)">FEED DE CAMARA</div>
+                            <div class="tab active" id="tab-mapa" onclick="tabChanger(2)">MAPA</div>
                         </div>
                         <div class="tab-content">
-                            <div id="map_container">
+                            <div id="map-container">
                                 <h3>Mapa del Almacén</h3>
                                 <canvas id="mapCanvas"></canvas>
+                            </div>
+                            <div id="cam-container">
+                                <img id="cameraFeed" src="https://localhost:8080/stream topic=/camera/image.raw" alt="Imagenes del robot">
                             </div>
                         </div>
                     </div>
                     <div class="manual-controls">
                         <h4 class="panel-title">CONTROLES MANUALES</h4>
                         <div class="dpad">
-                        <div></div>
-                        <button class="dir-btn">DELANTE</button>
-                        <div></div>
-                        <button class="dir-btn">IZQUIERDA</button>
-                        <button class="btn-danger stop">PARAR</button>
-                        <button class="dir-btn">DERECHA</button>
-                        <div></div>
-                        <button class="dir-btn">ATRAS</button>
-                        <div></div>
+                            <div></div>
+                            <button class="dir-btn" onclick="moveRobot(0.2,0)">DELANTE</button>
+                            <div></div>
+                            <button class="dir-btn" onclick="moveRobot(0,0.5)">IZQUIERDA</button>
+                            <button class="btn-danger stop" onclick="moveRobot(0,0)">PARAR</button>
+                            <button class="dir-btn" onclick="moveRobot(0,-0.5)">DERECHA</button>
+                            <div></div>
+                            <button class="dir-btn" onclick="moveRobot(-0.2,0)">ATRAS</button>
+                            <div></div>
                         </div>
                     </div>
                 </section>
@@ -110,17 +110,11 @@
     
         </main>
 
-        <main class="main-content">
-            <!-- Contenedor del Mapa -->
-            
-
-            <!-- Panel de control de patrulla -->
-            
-        </main>
     </div>
 
-    <!-- Scripts: el de conexión primero y luego el del mapa -->
+    <!-- Scripts: el de conexión primero, el del mapa y el de la camara burger-->
     <script src="../scripts/connection.js"></script>
     <script src="../scripts/map_web.js"></script>
+    <script src="../scripts/camera.js"></script>
 </body>
 </html>

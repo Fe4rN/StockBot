@@ -296,3 +296,24 @@ function moveRobot(linearX, angularZ) {
     });
 })();
 // ========================================================
+
+
+function tabChanger(num_tab){
+    tab_camara=document.getElementById("tab-camara");
+    tab_mapa=document.getElementById("tab-mapa");
+    map_container=document.getElementById("map-container");
+    cam_container=document.getElementById("cam-container");
+
+    if(num_tab==1 && tab_mapa.classList.contains("active")){
+        tab_camara.classList.add("active");
+        tab_mapa.classList.remove("active");
+        map_container.style.display= "none";
+        cam_container.style.display= "block";
+    }else if(num_tab==2 && tab_camara.classList.contains("active")){
+        tab_camara.classList.remove("active");
+        tab_mapa.classList.add("active");
+        map_container.style.display= "block";
+        cam_container.style.display= "none";
+    }
+    
+}
