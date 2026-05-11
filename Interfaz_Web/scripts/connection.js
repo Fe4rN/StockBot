@@ -166,7 +166,34 @@ function sendRobot(pointId) {
     });
 }
 
-// Función para suscribirse a la cámara
+// Función para activar el escaneo de productos 
+function activarEscaneo() {
+    if (!data.connected) {
+        alert("Primero conéctate al robot");
+        return;
+    }
+
+    // Definición del servicio Trigger
+    let scanClient = new ROSLIB.Service({
+        ros : data.ros,
+        name : '/activar_escaneo',
+        serviceType : 'std_srvs/Trigger'
+    });
+
+    // Feedback visual inmediato en la interfaz
+    let statusElement = document.getElementById("status_text");
+    let scanStatus = document.getElementById("scan-status");
+
+    scanStatus.innerText = "BUSCANDO...";
+    scanStatus.style.color = "#1976d2"; // Azul de tu paleta
+    statusElement.style.color = "#1976d2";
+
+    scanClient.callService(new ROSLIB.ServiceRequest({}), function(result) {
+        console.log("Servicio de escaneo activado con éxito");
+    });
+}
+
+// Función para suscribirse a la cámara (Escucha lo que detecta el Python)
 function subscribeToCameraResults() {
     let resultSubscriber = new ROSLIB.Topic({
         ros : data.ros,
@@ -176,19 +203,33 @@ function subscribeToCameraResults() {
 
     resultSubscriber.subscribe(function(message) {
         let statusElement = document.getElementById("status_text");
-        
-        // Mejorado: Solo mostramos si lo encuentra o no, SI YA está buscando.
-        if (statusElement.innerText.includes("Buscando producto")) {
-            if (message.data === "Encontrado") {
-                statusElement.innerText = "¡Encontrado! El producto está en la estantería.";
-                statusElement.style.color = "green";
-            } else if (message.data === "No encontrado") {
-                statusElement.innerText = "Buscando producto... (No encontrado en la vista actual)";
-                statusElement.style.color = "orange";
+        let scanStatus = document.getElementById("scan-status");
+
+        // Si recibimos "No encontrado", simplemente actualizamos el estado visual
+        if (message.data === "No encontrado") {
+            if (scanStatus.innerText === "BUSCANDO...") {
+                statusElement.innerText = "Escaneando... asegúrate de que el código esté de frente.";
+                statusElement.style.color = "#1976d2"; // Azul UPV/StockBot
             }
+        } 
+        // Si recibimos CUALQUIER OTRA COSA (el nombre del producto)
+        else {
+            // 1. Actualizamos el texto grande de estado
+            statusElement.innerText = "¡OPERACIÓN EXITOSA!";
+            statusElement.style.color = "#2e7d32"; // Tu verde de btn-success
+
+            // 2. Mostramos el nombre del producto detectado en el mini-panel
+            scanStatus.innerText = message.data.toUpperCase(); 
+            scanStatus.style.color = "#2e7d32";
+
+            console.log("📦 Producto detectado en el almacén: " + message.data);
+            
+            // Opcional: Podrías hacer que el robot pare de moverse aquí si quieres
+            // moveRobot(0,0); 
         }
     });
 }
+
 
 /**
  * Llama al servicio de patrulla de StockBot.
