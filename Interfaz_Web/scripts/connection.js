@@ -36,38 +36,62 @@ function attempt_connection(robot_address) {
     data.ros.on("connection", () => {
         data.connected = true;
         console.log("Conexion con ROSBridge correcta");
-        connection_box.style.backgroundColor = connectionColor;
-        connection_button.textContent = disconnect_button;
-        address_input.disabled = true;
-        
-        // 1. Mostrar el panel al conectar
-        control_panel.style.display = "block";
+
+        // --- PROTECCIÓN: Solo ejecutamos si el elemento existe ---
+        if (connection_box) { 
+            connection_box.style.backgroundColor = connectionColor; 
+        }
+        if (connection_button) { 
+            connection_button.textContent = disconnect_button; 
+        }
+        if (address_input) { 
+            address_input.disabled = true; 
+        }
+        if (control_panel) { 
+            control_panel.style.display = "block"; 
+        }
+        // ---------------------------------------------------------
+
         // 2. Activar la escucha de la cámara
         subscribeToCameraResults();
+
+        // 3. Activar el mapa
+        if (typeof initMapPoseSubscription === "function") {
+            initMapPoseSubscription();
+        }
     });
 
     //  Callback de ERROR
     data.ros.on("error", (error) => {
         console.log("Error al conectar");
-        console.log(error);
-        connection_box.style.backgroundColor = disconnectedColor;
-        connection_button.textContent = connect_button;
-        address_input.disabled = false;
         
-        // Ocultar el panel si hay error
-        control_panel.style.display = "none";
+        // --- PROTECCIÓN ---
+        if (connection_button) { 
+            connection_button.textContent = connect_button; 
+        }
+        if (address_input) { 
+            address_input.disabled = false; 
+        }
+        if (control_panel) { 
+            control_panel.style.display = "none"; 
+        }
     });
 
     //  Callback de CIERRE
     data.ros.on("close", () => {
         data.connected = false;
         console.log("Conexion cerrada");
-        connection_box.style.backgroundColor = disconnectedColor;
-        connection_button.textContent = connect_button;
-        address_input.disabled = false;
         
-        // Ocultar el panel si se cierra la conexión
-        control_panel.style.display = "none";
+        // --- PROTECCIÓN ---
+        if (connection_button) { 
+            connection_button.textContent = connect_button; 
+        }
+        if (address_input) { 
+            address_input.disabled = false; 
+        }
+        if (control_panel) { 
+            control_panel.style.display = "none"; 
+        }
     });
 }
     
@@ -87,23 +111,26 @@ function disconnect() {
 }
 
 //  Lectura y Parsing de la dirección introducida por el usuario
-connection_box.addEventListener("submit", (e) => {
-    e.preventDefault();
-        
-    if(data.connected == true){
-        disconnect();
-        return;
-    }
+if (connection_box) {
+    connection_box.addEventListener("submit", (e) => {
+        e.preventDefault();
+            
+        if(data.connected == true){
+            disconnect();
+            return;
+        }
 
-    const address = document.getElementById("address").value.trim();
-
-    let final_address = address;
-    if (!address.startsWith("ws://") && !address.startsWith("wss://")) {
-        final_address = "ws://" + address;
-    }
-        
-    attempt_connection(final_address);
-});
+        const address_input = document.getElementById("address");
+        if (address_input) {
+            const address = address_input.value.trim();
+            let final_address = address;
+            if (!address.startsWith("ws://") && !address.startsWith("wss://")) {
+                final_address = "ws://" + address;
+            }
+            attempt_connection(final_address);
+        }
+    });
+}
 
 
 // ---------------------------------------------------------
@@ -186,6 +213,7 @@ function controlPatrol(command) {
     });
 
     let statusElement = document.getElementById("status_text");
+    let modeBanner = document.getElementById("mode-banner");
     statusElement.innerText = (command === 1) ? "Iniciando patrulla..." : "Deteniendo robot...";
     statusElement.style.color = "blue";
 
@@ -194,6 +222,7 @@ function controlPatrol(command) {
         if(result.success) {
             statusElement.innerText = result.message;
             statusElement.style.color = (command === 1) ? "green" : "black";
+            modeBanner.innerText = "Modo de operación actual: PATRULLA"
         } else {
             statusElement.innerText = "Fallo en patrulla: " + result.message;
             statusElement.style.color = "red";
@@ -250,3 +279,43 @@ function moveRobot(linearX, angularZ) {
     }
 }
 
+// ========================================================
+// === BLOQUE MOCK: AUTOCONEXIÓN (BORRAR EN PRODUCCIÓN) ===
+// ========================================================
+// Esta función fuerza la conexión automática para pruebas
+/*
+(function autoConnectMock() {
+    // CAMBIO IMPORTANTE: Puerto 9090 (no 9000)
+    const default_robot_ip = "ws://127.0.0.1:9090"; 
+    
+    console.warn("⚠️ MOCK: Intentando autoconexión a " + default_robot_ip);
+    
+    window.addEventListener('load', () => {
+        setTimeout(() => {
+            if (!data.connected) attempt_connection(default_robot_ip);
+        }, 1000); 
+    });
+})();
+*/
+// ========================================================
+
+
+function tabChanger(num_tab){
+    tab_camara=document.getElementById("tab-camara");
+    tab_mapa=document.getElementById("tab-mapa");
+    map_container=document.getElementById("map-container");
+    cam_container=document.getElementById("cam-container");
+
+    if(num_tab==1 && tab_mapa.classList.contains("active")){
+        tab_camara.classList.add("active");
+        tab_mapa.classList.remove("active");
+        map_container.style.display= "none";
+        cam_container.style.display= "block";
+    }else if(num_tab==2 && tab_camara.classList.contains("active")){
+        tab_camara.classList.remove("active");
+        tab_mapa.classList.add("active");
+        map_container.style.display= "block";
+        cam_container.style.display= "none";
+    }
+    
+}

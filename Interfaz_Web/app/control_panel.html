@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>StockBot - Panel de Control</title>
+    <link rel="stylesheet" href="../styles/main.css">
+    <link rel="stylesheet" href="../styles/panel_control.css">
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/roslib@1/build/roslib.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/js-yaml@4.1.0/dist/js-yaml.min.js"></script>
+</head>
+<body>
+    <div class="app">
+        <aside class="sidebar">
+            <div class="logo">StockBot</div>
+            <div class="sidebar-buttons">
+                <h3 class="sidebar-title">Mis Robots</h3>
+                <nav class="robot-list">
+                    <button class="robot-btn">StockBot 1</button>
+                    <button class="robot-btn">StockBot 2</button>
+                    <button class="robot-btn">StockBot 3</button>
+                    <button class="robot-btn active">StockBot 4</button>
+                    <button class="robot-btn">BayonaBot</button>
+                    <button class="robot-btn">StockBot 5</button>
+                </nav>
+                <button class="add-robot-btn">Añadir robot</button>
+            </div>
+        </aside>
+
+        <main class="main">
+            <header class="topbar">
+                <div class="user">
+                    <span id="header-user">Usuario</span>
+                    <div class="avatar">
+                        <svg viewBox="0 0 24 24" width="28" height="28" fill="#fff">
+                        <path d="M12 12c2.7 0 5-2.3 5-5s-2.3-5-5-5-5 2.3-5 5 2.3 5 5 5zm0 2c-3.3 0-10 1.7-10 5v3h20v-3c0-3.3-6.7-5-10-5z"/>
+                        </svg>
+                    </div>
+                </div>
+            </header>
+            
+            <div class="content">
+                <section class="left-col">
+                    <div class="field-row">
+                        <label class="field-label">Nombre</label>
+                        <input type="text" class="field-input" value="StockBot 4" />
+                    </div>
+                    
+                    <div class="field-row">
+                        <label class="field-label">Dirección</label>
+                        <form id="connection_container">
+                            <input type="text" id="address" class="field-input" placeholder="127.0.0.1:9000"/>
+                            <button class="arrow-btn" id="connection_button" type="submit">➜</button>
+                        </form>
+                    </div>
+
+                    <div id="control_panel" style="display: none;">
+                        <div id="mode-banner" class="mode-banner">
+                            Modo de operación actual: MANUAL
+                        </div>
+
+                        <div class="panels-row">
+                            <div class="panel">
+                                <h4 class="panel-title">Navegar a punto</h4>
+                                <button class="nav-btn" onclick="sendRobot(1)">Estantería 1</button>
+                                <button class="nav-btn" onclick="sendRobot(2)">Cajas 1</button>
+                            </div>
+
+                            <div class="panel">
+                                <div class="patrol-management">
+                                    <h3>Gestión de Patrulla</h3>
+                                    <button onclick="controlPatrol(1)" class="btn-control btn-start btn-success">Activar Patrulla</button>
+                                    <button onclick="controlPatrol(0)" class="btn-control btn-stop btn-danger">Parar Patrulla</button>
+                                    <p id="status_text">Esperando conexión...</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+                
+                <section class="right-col">
+                    <div class="tabs-card">
+                        <div class="tabs">
+                            <div class="tab" id="tab-camara" onclick="tabChanger(1)">FEED DE CAMARA</div>
+                            <div class="tab active" id="tab-mapa" onclick="tabChanger(2)">MAPA</div>
+                        </div>
+                        <div class="tab-content">
+                            <div id="map-container">
+                                <h3>Mapa del Almacén</h3>
+                                <canvas id="mapCanvas"></canvas>
+                            </div>
+                            <div id="cam-container">
+                                <img id="cameraFeed" src="http://localhost:8080/stream?topic=/camera/image_raw" alt="Imagenes de StockBot">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="manual-controls">
+                        <h4 class="panel-title">CONTROLES MANUALES</h4>
+                        <div class="dpad">
+                            <div></div>
+                            <button class="dir-btn" onclick="moveRobot(0.2,0)">DELANTE</button>
+                            <div></div>
+                            <button class="dir-btn" onclick="moveRobot(0,0.5)">IZQUIERDA</button>
+                            <button class="btn-danger stop" onclick="moveRobot(0,0)">PARAR</button>
+                            <button class="dir-btn" onclick="moveRobot(0,-0.5)">DERECHA</button>
+                            <div></div>
+                            <button class="dir-btn" onclick="moveRobot(-0.2,0)">ATRAS</button>
+                            <div></div>
+                        </div>
+                    </div>
+                </section>
+        
+            </div>
+        </main>
+
+    </div>
+
+    <script src="../scripts/connection.js"></script>
+    <script src="../scripts/map_web.js"></script>
+    <script src="../scripts/camera.js"></script>
+</body>
+</html>

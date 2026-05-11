@@ -1,3 +1,11 @@
+"""
+Este módulo contiene la configuración para el lanzamiento del simulador Gazebo.
+
+Functions:
+  generate_launch_description
+
+"""
+
 import os
 from ament_index_python.packages import get_package_share_directory
 from launch import LaunchDescription
@@ -7,6 +15,18 @@ from launch.launch_description_sources import PythonLaunchDescriptionSource
 from launch.substitutions import LaunchConfiguration
 
 def generate_launch_description():
+
+    """
+    Genera la descripción de lanzamiento para la simulación del robot StockBot.
+
+    Carga el mundo de Gazebo, configura las variables de entorno para los modelos
+    y spawnea al robot junto con su publicador de estado.
+
+    Returns:
+      LaunchDescription: La descripción completa del lanzamiento para ROS 2.
+    
+    """
+
     launch_file_dir = os.path.join(get_package_share_directory('stock_bot_my_world'), 'launch')
     ros_gz_sim = get_package_share_directory('ros_gz_sim')
 
@@ -65,7 +85,7 @@ def generate_launch_description():
 
     set_env_vars_resources = AppendEnvironmentVariable(
     'GZ_SIM_RESOURCE_PATH',
-    get_package_share_directory('stock_bot_my_world')) # Sin el '/models' al final
+    get_package_share_directory('stock_bot_my_world'))
 
     ld = LaunchDescription()
 

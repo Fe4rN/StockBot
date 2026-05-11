@@ -1,0 +1,27 @@
+*{
+  margin: 0;
+}
+
+header{
+    display: flex;
+    justify-content: space-between;
+    width: 100%;
+    margin: 0;
+}
+
+.head-div{
+    background: #79C3FF;
+    color: white;
+    padding: 1rem 2rem;
+}
+
+.right-head{
+    border-radius: 0 0 2em 0;
+}
+
+.left-head{
+    border-radius: 0 0 0 2em;
+}
+
+
+
