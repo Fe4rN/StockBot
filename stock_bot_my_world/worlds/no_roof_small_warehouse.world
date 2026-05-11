@@ -242,17 +242,17 @@
 
     <include>
       <uri>model://caja_boligrafos</uri>
-      <pose>2.4794 0.5145 0.2000 0 0 0</pose> 
+      <pose>2.4794 0.5145 0.3000 0 0 0</pose> 
     </include>
 
     <include>
       <uri>model://caja_libros</uri>
-      <pose>2.4784 -1.2724 0.2000 0 0 0</pose> 
+      <pose>2.4784 -1.2724 0.3000 0 0 0</pose> 
     </include>
 
     <include>
       <uri>model://caja_peluches</uri>
-      <pose>2.4823 -3.2231 0.2000 0 0 0</pose> 
+      <pose>2.4823 -3.2231 0.3000 0 0 0</pose> 
     </include>
 
   </world>

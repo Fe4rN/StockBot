@@ -18,6 +18,7 @@ pkill -2 -f rviz2
 pkill -2 -f initial_pose_pub
 pkill -2 -f patroller
 pkill -2 -f robot_state_publisher
+pkill -2 -f barcode_reader
 
 # Damos 3 segundos para que los nodos de ROS cierren sus buffers y TFs
 sleep 3
@@ -33,7 +34,7 @@ ros2 daemon start > /dev/null 2>&1
 # --- 3. COMPILACIÓN ---
 echo "Compilando Workspace..."
 cd "$WORKSPACE_DIR" || exit 1
-colcon build --symlink-install --packages-select stock_bot_my_world stock_bot_nav_punto stock_bot_patrol
+colcon build --symlink-install --packages-select stock_bot_my_world stock_bot_nav_punto stock_bot_patrol stock_bot_camera
 
 source /opt/ros/jazzy/setup.bash
 source install/setup.bash
@@ -66,5 +67,11 @@ exec bash"
 # Terminal 4 y 5
 gnome-terminal --tab --title="4. PATRULLA" -- bash -c "source /opt/ros/jazzy/setup.bash; source $WORKSPACE_DIR/install/setup.bash; ros2 run stock_bot_patrol patroller; exec bash"
 gnome-terminal --tab --title="5. CONTROL" -- bash -c "source /opt/ros/jazzy/setup.bash; source $WORKSPACE_DIR/install/setup.bash; echo '🎮 CONTROL LISTO'; exec bash"
+
+# Terminal 6: Escáner de Visión Artificial
+gnome-terminal --tab --title="6. VISION" -- bash -c "
+source /opt/ros/jazzy/setup.bash; source $WORKSPACE_DIR/install/setup.bash; 
+ros2 run stock_bot_camera barcode_reader; 
+exec bash"
 
 echo "Sistema listo."
