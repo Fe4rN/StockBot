@@ -14,7 +14,7 @@ class Robot(Base):
     ID = Column(Integer, primary_key=True, index=True)
     Nombre = Column(String)
     Direccion_Red = Column(String)
-    Usuario_ID = Column(Integer, ForeignKey("Usuarios.ID"))
+    Usuario = Column(Integer, ForeignKey("Usuarios.ID"))
     
     propietario = relationship("Usuario")
 
@@ -22,15 +22,24 @@ class Almacen(Base):
     __tablename__ = "Almacen"
     ID = Column(Integer, primary_key=True)
     Nombre = Column(String)
-    Propietario_ID = Column(Integer, ForeignKey("Usuarios.ID"))
-    Robots_ID = Column(Integer, ForeignKey("Robots.ID"))
+    Propietario = Column(Integer, ForeignKey("Usuarios.ID"))
+    Robots = Column(Integer, ForeignKey("Robots.ID"))
 
 class Producto(Base):
     __tablename__ = "Producto"
     ID = Column(Integer, primary_key=True)
     Nombre = Column(String)
     Cantidad = Column(Integer)
-    Almacen_ID = Column(Integer, ForeignKey("Almacen.ID"))
+    Almacen = Column(Integer, ForeignKey("Almacen.ID"))
+
+class Aviso(Base):
+    __tablename__ = "Avisos"
+    ID = Column(Integer, primary_key=True, index=True)
+    Tipo = Column(String)
+    Robot = Column(Integer, ForeignKey("Robots.ID"))
+    Almacen = Column(Integer, ForeignKey("Almacen.ID"))
+    Informacion = Column(String)
+    Tiempo = Column(TIMESTAMP, server_default=func.now())
 
 class Historial(Base):
     __tablename__ = "Historial"
