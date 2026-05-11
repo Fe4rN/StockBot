@@ -1,0 +1,77 @@
+body{
+    background-color: #f2f7fc;
+}
+
+.main-content{
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.title-form{
+    margin-bottom: 2rem;
+}
+
+h1{
+    color: #2D5FA8;
+}
+
+h2, p{
+    color: #5D7FA8;
+}
+
+.form-stockbot{
+    display: flex;
+    flex-direction: column;
+    gap:1rem;
+}
+
+.form-group{
+    padding: .5rem;
+    background: #FFFF;
+    border: 2px solid #7FB2E6;
+    border-radius: 1.15rem;
+    display: flex;
+    gap: 1rem;
+}
+
+.form-label{
+    padding: .75rem 1rem;
+    background-color: #3193f4;
+    color: #FFFFFF;
+    min-width: 6rem;
+    text-align: center;
+    border-radius: 0.75rem;
+}
+
+.form-input{
+    background-color: #FFFFFF;
+    color: #2D5FA8;
+    border: none;
+}
+
+#checkbox-terms{
+    accent-color: #7FB2E6;
+}
+
+.btn-crear{
+    background-color: #3193f4;
+    color: #FFFFFF;
+    border: 2px solid #3193f4;
+}
+
+.btn-crear:hover{
+    background-color: #6CA4DD;
+}
+
+.btn-cancelar{
+    background-color: #FFFFFF;
+    color: #2D5FA8;
+    border: 1px solid #7FB2E6;
+}
+
+
+.btn-cancelar:hover{
+    background-color: #E6F0FA;
+}
