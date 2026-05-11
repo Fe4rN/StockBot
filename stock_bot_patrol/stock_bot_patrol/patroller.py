@@ -62,7 +62,7 @@ class PatrollerNode(Node):
             # Temporizador que vigila el estado de la patrulla cada segundo
             self.timer = self.create_timer(1.0, self.patrol_manager, callback_group=self.group)
             
-            self.get_logger().info('✅ --- StockBot Patroller listo ---')
+            self.get_logger().info('--- StockBot Patroller listo ---')
         except Exception as e:
             self.get_logger().error(f"❌ Error crítico en inicialización: {str(e)}")
             sys.exit(1)
@@ -80,7 +80,7 @@ class PatrollerNode(Node):
         """
         try:
             if request.point_id == 1:
-                self.get_logger().info("🚀 Activando interruptor de patrulla...")
+                self.get_logger().info("Activando interruptor de patrulla...")
                 self.patrolling = True
                 response.success = True
                 response.message = "Patrulla activada. El robot empezará en breve."
@@ -115,9 +115,9 @@ class PatrollerNode(Node):
                 success = await self.execute_nav2_patrol()
                 
                 if success:
-                    self.get_logger().info("🏁 Vuelta completada con éxito.")
+                    self.get_logger().info("Vuelta completada con éxito.")
                 else:
-                    self.get_logger().warn("⚠️ Vuelta interrumpida o fallida.")
+                    self.get_logger().warn("Vuelta interrumpida o fallida.")
                 
                 self.is_executing = False 
         except Exception as e:

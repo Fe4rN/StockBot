@@ -11,10 +11,11 @@ echo "Iniciando servidor rosbridge..."
 ros2 launch rosbridge_server rosbridge_websocket_launch.xml delay_between_messages:=0.0 &
 ROS_PID=$!
 
+echo "Iniciando el web server"
+ros2 run web_video_server web_video_server &
+
 echo "Iniciando servidor HTTP..."
 python3 -m http.server 8000
 HTTP_PID=$!
-
-ros2 run web_video_server web_video_server
 
 wait $ROS_PID $HTTP_PID
