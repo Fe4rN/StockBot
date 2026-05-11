@@ -5,7 +5,6 @@
     <title>StockBot - Panel de Control</title>
     <link rel="stylesheet" href="../styles/main.css">
     <link rel="stylesheet" href="../styles/panel_control.css">
-    <!-- Librerías Necesarias -->
     <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/roslib@1/build/roslib.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/js-yaml@4.1.0/dist/js-yaml.min.js"></script>
 </head>
@@ -39,7 +38,6 @@
                 </div>
             </header>
             <div class="content">
-                <!-- Left column -->
                 <section class="left-col">
                     <div class="field-row">
                         <label class="field-label">Nombre</label>
@@ -73,8 +71,26 @@
                             </div>
                         </div>
                     </div>
+
+                    <div class="notifications-panel" style="margin-top: 20px; background: white; border-radius: 8px; padding: 15px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+                        <h4 class="panel-title" style="margin-bottom: 10px;">REGISTRO DE NOTIFICACIONES</h4>
+                        <div class="table-container" style="max-height: 250px; overflow-y: auto;">
+                            <table class="notifications-table" id="robot-notifications-table" style="width: 100%; font-size: 0.85em;">
+                                <thead>
+                                    <tr>
+                                        <th style="text-align: left; padding-bottom: 8px;">Hora</th>
+                                        <th style="text-align: left; padding-bottom: 8px;">Motivo</th>
+                                        <th style="text-align: left; padding-bottom: 8px;">Nivel</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="notifications-body">
+                                    </tbody>
+                            </table>
+                        </div>
+                    </div>
+
                 </section>
-                <!--Right Section-->
+
                 <section class="right-col">
                     <div class="tabs-card">
                         <div class="tabs">
@@ -106,15 +122,13 @@
                         </div>
                     </div>
                 </section>
-        
-    
+            </div>
         </main>
-
     </div>
 
-    <!-- Scripts: el de conexión primero, el del mapa y el de la camara burger-->
     <script src="../scripts/connection.js"></script>
     <script src="../scripts/map_web.js"></script>
     <script src="../scripts/camera.js"></script>
+    <script src="../scripts/notifications.js"></script>
 </body>
 </html>

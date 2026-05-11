@@ -32,32 +32,28 @@ function attempt_connection(robot_address) {
         url: data.rosbridge_address
     });
         
-    //  Callback de ÉXITO
+//  Callback de ÉXITO
     data.ros.on("connection", () => {
         data.connected = true;
         console.log("Conexion con ROSBridge correcta");
 
-        // --- PROTECCIÓN: Solo ejecutamos si el elemento existe ---
-        if (connection_box) { 
-            connection_box.style.backgroundColor = connectionColor; 
-        }
-        if (connection_button) { 
-            connection_button.textContent = disconnect_button; 
-        }
-        if (address_input) { 
-            address_input.disabled = true; 
-        }
-        if (control_panel) { 
-            control_panel.style.display = "block"; 
-        }
-        // ---------------------------------------------------------
+        // --- PROTECCIÓN ---
+        if (connection_box) connection_box.style.backgroundColor = connectionColor; 
+        if (connection_button) connection_button.textContent = disconnect_button; 
+        if (address_input) address_input.disabled = true; 
+        if (control_panel) control_panel.style.display = "block"; 
 
-        // 2. Activar la escucha de la cámara
+        // 1. Activar la escucha de la cámara
         subscribeToCameraResults();
 
-        // 3. Activar el mapa
+        // 2. Activar el mapa
         if (typeof initMapPoseSubscription === "function") {
             initMapPoseSubscription();
+        }
+
+        // 3. NUEVO: Activar las Notificaciones
+        if (typeof suscribirNotificaciones === "function") {
+            suscribirNotificaciones(data.ros);
         }
     });
 
@@ -283,18 +279,18 @@ function moveRobot(linearX, angularZ) {
 // === BLOQUE MOCK: AUTOCONEXIÓN (BORRAR EN PRODUCCIÓN) ===
 // ========================================================
 // Esta función fuerza la conexión automática para pruebas
-(function autoConnectMock() {
-    // CAMBIO IMPORTANTE: Puerto 9090 (no 9000)
-    const default_robot_ip = "ws://127.0.0.1:9090"; 
+//(function autoConnectMock() {
+//    // CAMBIO IMPORTANTE: Puerto 9090 (no 9000)
+//    const default_robot_ip = "ws://127.0.0.1:9090"; 
     
-    console.warn("⚠️ MOCK: Intentando autoconexión a " + default_robot_ip);
+//    console.warn("⚠️ MOCK: Intentando autoconexión a " + default_robot_ip);
     
-    window.addEventListener('load', () => {
-        setTimeout(() => {
-            if (!data.connected) attempt_connection(default_robot_ip);
-        }, 1000); 
-    });
-})();
+//    window.addEventListener('load', () => {
+//        setTimeout(() => {
+//            if (!data.connected) attempt_connection(default_robot_ip);
+//        }, 1000); 
+//    });
+//})();
 // ========================================================
 
 

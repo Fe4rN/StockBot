@@ -18,6 +18,8 @@ from nav2_msgs.action import NavigateToPose
 from stock_bot_interfaces.srv import GoToPoint
 from geometry_msgs.msg import PoseStamped
 import sys
+import json
+from std_msgs.msg import String
 
 class SimpleNavigator(Node):
     """
@@ -46,6 +48,8 @@ class SimpleNavigator(Node):
             self.declare_parameter('punto1', [7.0, -1.0])
             self.declare_parameter('punto2', [8.32, -6.3])
             
+            self.notif_pub = self.create_publisher(String, '/notificaciones_robot', 10)
+
             self.nav_client = ActionClient(
                 self, 
                 NavigateToPose, 
@@ -64,6 +68,16 @@ class SimpleNavigator(Node):
         except Exception as e:
             self.get_logger().error(f'❌ Error crítico en la inicialización: {str(e)}')
             sys.exit(1)
+    
+    def enviar_notificacion(self, mensaje, nivel="info"):
+        """Función auxiliar para enviar notificaciones a la web"""
+        msg = String()
+        datos = {
+            "mensaje": mensaje,
+            "nivel": nivel
+        }
+        msg.data = json.dumps(datos)
+        self.notif_pub.publish(msg)
 
     async def service_callback(self, request, response):
         """
@@ -80,25 +94,30 @@ class SimpleNavigator(Node):
             punto_solicitado = f'punto{request.point_id}'
             
             if not self.has_parameter(punto_solicitado):
+                 self.enviar_notificacion(f"Intento de ir a un punto inexistente ({request.point_id})", "warning")
                  response.success = False
                  response.message = f"Error: El punto {request.point_id} no existe."
                  return response
                  
             coords = self.get_parameter(punto_solicitado).value
+            self.enviar_notificacion(f"Iniciando ruta hacia la estantería: {punto_solicitado}", "info")
             self.get_logger().info(f"📍 Petición recibida: Yendo a {punto_solicitado} ({coords[0]}, {coords[1]})...")
 
             # Esperamos a que la navegación termine de forma asíncrona
             success = await self.send_nav2_goal(coords[0], coords[1])
             
             if success:
+                self.enviar_notificacion(f"El robot ha llegado a su destino ({punto_solicitado})", "success")
                 response.success = True
                 response.message = f"¡Éxito! El robot ha llegado al {punto_solicitado}."
             else:
+                self.enviar_notificacion(f"Fallo en la navegación. El robot no pudo alcanzar {punto_solicitado}", "error")
                 response.success = False
                 response.message = f"Fallo: El robot no pudo llegar al {punto_solicitado}."
                 
             return response
         except Exception as e:
+            self.enviar_notificacion(f"Error interno en el navegador: {str(e)}", "error")
             self.get_logger().error(f'❌ Error en callback del servicio: {str(e)}')
             response.success = False
             response.message = f"Error interno: {str(e)}"
