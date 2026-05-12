@@ -74,7 +74,6 @@ exec bash"
 gnome-terminal --tab --title="5. CHATBOT IA" -- bash -c "
 source /opt/ros/jazzy/setup.bash; 
 source $WORKSPACE_DIR/install/setup.bash; 
-source ~/virtualenvs/rosenv/bin/activate; # <--- LA LLAVE MAESTRA
 ros2 run stock_bot chatbot.py; 
 exec bash"
 
