@@ -233,10 +233,6 @@ function subscribeToCameraResults() {
 }
 
 // deteccion de personas 
-// Variable fuera de la función para controlar el temporizador
-let alertTimer = null;
-let isAlertActive = false;
-
 function initSecuritySubscriber() {
     let intruderListener = new ROSLIB.Topic({
         ros : data.ros,
@@ -245,49 +241,43 @@ function initSecuritySubscriber() {
     });
 
     intruderListener.subscribe(function(message) {
-        // Si ya hay una alerta activa, ignoramos los nuevos mensajes para evitar el parpadeo
-        if (isAlertActive) return;
-
-        console.warn('🚨 INTRUSIÓN DETECTADA: Bloqueando interfaz 15s');
-        isAlertActive = true;
-
+        console.warn('¡ALERTA!: ' + message.data);
+        
+        // 👇 CAMBIO CLAVE: Buscamos TODOS los elementos que tengan este ID
         let allStatusTexts = document.querySelectorAll("#status_text");
+        
         let securityStatus = document.getElementById("security_status");
         let panelElement = document.getElementById("security_panel");
 
-        // 1. Activamos la alerta en todos los sitios
+        // 1. Actualizamos AMBOS textos de estado a la vez
         allStatusTexts.forEach(element => {
             element.innerText = "🚨 " + message.data;
             element.style.color = "red";
             element.style.fontWeight = "bold";
         });
 
+        // 2. Ponemos el panel específico de seguridad en rojo
         if (securityStatus && panelElement) {
             securityStatus.innerText = "🚨 " + message.data;
             securityStatus.style.color = "white";
             panelElement.style.backgroundColor = "#ff0000";
         }
 
-        // 2. Creamos el temporizador de 15 segundos (15000ms)
-        alertTimer = setTimeout(() => {
-            // Reset de los textos
+        // 3. Reset automático tras 5 segundos
+        setTimeout(() => {
             allStatusTexts.forEach(element => {
+                // Volvemos al estado original (puedes ajustarlo si prefieres otro texto)
                 element.innerText = "Sistema Normal / En espera";
                 element.style.color = "black";
                 element.style.fontWeight = "normal";
             });
 
-            // Reset del panel
             if (securityStatus && panelElement) {
                 securityStatus.innerText = "Sistema Normal";
                 securityStatus.style.color = "black";
                 panelElement.style.backgroundColor = "#f0f0f0";
             }
-
-            // Liberamos el bloqueo para que pueda volver a saltar si hay otra detección
-            isAlertActive = false;
-            console.log('✅ Alerta finalizada, sistema rearmado');
-        }, 15000); 
+        }, 5000);
     });
 }
 
