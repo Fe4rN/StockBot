@@ -1,7 +1,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from .database import engine, Base
-from .routers import usuarios, avisos, historial
+from .routers import usuarios, avisos, historial, robots
 
 # Crea las tablas si no existen (en producción usa Alembic)
 Base.metadata.create_all(bind=engine)
@@ -28,6 +28,8 @@ app.include_router(usuarios.router)
 app.include_router(avisos.router)
 # Router de historial del robot
 app.include_router(historial.router)
+# Router de robots
+app.include_router(robots.router)
 
 @app.get("/")
 def read_root():

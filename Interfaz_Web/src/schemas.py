@@ -52,3 +52,14 @@ class HistorialResponse(HistorialBase):
     Fecha: datetime
 
     model_config = ConfigDict(from_attributes=True)
+    
+class RobotResponse(BaseModel):
+    ID: int
+    Nombre: str
+    Direccion_Red: str
+    Usuario: int
+
+    model_config = ConfigDict(from_attributes=True)
+    
+class RobotSearch(BaseModel):
+    Nombre: str
