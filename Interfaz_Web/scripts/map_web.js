@@ -65,11 +65,21 @@ function draw() {
     let pixelY = canvas.height - ((robotPosition.y - origin[1]) / res); 
 
     ctx.beginPath();
-    ctx.fillStyle = '#13a200'; 
-    ctx.arc(pixelX, pixelY, 6, 0, 2 * Math.PI);
+    
+    ctx.fillStyle = '#1976d2'; 
+
+    ctx.shadowColor = 'rgba(0, 0, 0, 0.6)';
+    ctx.shadowBlur = 8;
+    ctx.shadowOffsetX = 2;
+    ctx.shadowOffsetY = 2;
+
+    ctx.arc(pixelX, pixelY, 20, 0, 2 * Math.PI);
     ctx.fill();
+    
+    ctx.shadowColor = 'transparent';
+    
     ctx.strokeStyle = "white";
-    ctx.lineWidth = 2;
+    ctx.lineWidth = 3; 
     ctx.stroke();
 }
 

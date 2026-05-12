@@ -73,7 +73,7 @@ Visualization Manager:
     - Alpha: 1
       Class: rviz_default_plugins/RobotModel
       Collision Enabled: false
-      Description File: /home/david/StockBot/stock_bot_my_world/urdf/turtlebot3_burger.urdf
+      Description File: /home/david/StockBot/stock_bot_my_world/urdf/turtlebot3_burger_cam.urdf
       Description Source: File
       Description Topic:
         Depth: 5
@@ -102,6 +102,19 @@ Visualization Manager:
           Show Axes: false
           Show Trail: false
           Value: true
+        camera_link:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        camera_rgb_frame:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+        camera_rgb_optical_frame:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
         caster_back_link:
           Alpha: 1
           Show Axes: false
@@ -239,9 +252,9 @@ Visualization Manager:
         Swap Stereo Eyes: false
         Value: false
       Focal Point:
-        X: 7.570948123931885
-        Y: -2.5109550952911377
-        Z: 2.274120807647705
+        X: 4.380430698394775
+        Y: -2.796922445297241
+        Z: 2.1893205642700195
       Focal Shape Fixed Size: true
       Focal Shape Size: 0.05000000074505806
       Invert Z Axis: false

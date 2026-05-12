@@ -67,3 +67,4 @@ venv/
 *.bak
 *.tmp
 Interfaz_Web/react
+stock_bot_nav_punto/rviz/navigation.rviz

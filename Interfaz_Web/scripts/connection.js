@@ -279,18 +279,20 @@ function moveRobot(linearX, angularZ) {
 // === BLOQUE MOCK: AUTOCONEXIÓN (BORRAR EN PRODUCCIÓN) ===
 // ========================================================
 // Esta función fuerza la conexión automática para pruebas
-//(function autoConnectMock() {
-//    // CAMBIO IMPORTANTE: Puerto 9090 (no 9000)
-//    const default_robot_ip = "ws://127.0.0.1:9090"; 
+/*
+(function autoConnectMock() {
+    // CAMBIO IMPORTANTE: Puerto 9090 (no 9000)
+    const default_robot_ip = "ws://127.0.0.1:9090"; 
     
 //    console.warn("⚠️ MOCK: Intentando autoconexión a " + default_robot_ip);
     
-//    window.addEventListener('load', () => {
-//        setTimeout(() => {
-//            if (!data.connected) attempt_connection(default_robot_ip);
-//        }, 1000); 
-//    });
-//})();
+    window.addEventListener('load', () => {
+        setTimeout(() => {
+            if (!data.connected) attempt_connection(default_robot_ip);
+        }, 1000); 
+    });
+})();
+*/
 // ========================================================
 
 

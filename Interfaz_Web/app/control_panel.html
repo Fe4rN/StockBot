@@ -37,12 +37,14 @@
                     </div>
                 </div>
             </header>
+            
             <div class="content">
                 <section class="left-col">
                     <div class="field-row">
                         <label class="field-label">Nombre</label>
                         <input type="text" class="field-input" value="StockBot 4" />
                     </div>
+                    
                     <div class="field-row">
                         <label class="field-label">Dirección</label>
                         <form id="connection_container">
@@ -51,23 +53,25 @@
                         </form>
                     </div>
 
-                    <div class="mode-banner">
-                        Modo de operación actual: MANUAL
-                    </div>
-
-                    <div class="panels-row">
-                        <div class="panel">
-                            <h4 class="panel-title">Navegar a punto</h4>
-                            <button class="nav-btn" onclick="sendRobot(1)">Estantería 1</button>
-                            <button class="nav-btn" onclick="sendRobot(2)">Cajas 1</button>
+                    <div id="control_panel" style="display: none;">
+                        <div id="mode-banner" class="mode-banner">
+                            Modo de operación actual: MANUAL
                         </div>
 
-                        <div class="panel">
-                            <div class="patrol-management">
-                                <h3>Gestión de Patrulla</h3>
-                                <button onclick="controlPatrol(1)" class="btn-control btn-start btn-success">Activar Patrulla</button>
-                                <button onclick="controlPatrol(0)" class="btn-control btn-stop btn-danger">Parar Patrulla</button>
-                                <p id="status_text">Esperando conexión...</p>
+                        <div class="panels-row">
+                            <div class="panel">
+                                <h4 class="panel-title">Navegar a punto</h4>
+                                <button class="nav-btn" onclick="sendRobot(1)">Estantería 1</button>
+                                <button class="nav-btn" onclick="sendRobot(2)">Cajas 1</button>
+                            </div>
+
+                            <div class="panel">
+                                <div class="patrol-management">
+                                    <h3>Gestión de Patrulla</h3>
+                                    <button onclick="controlPatrol(1)" class="btn-control btn-start btn-success">Activar Patrulla</button>
+                                    <button onclick="controlPatrol(0)" class="btn-control btn-stop btn-danger">Parar Patrulla</button>
+                                    <p id="status_text">Esperando conexión...</p>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -90,7 +94,7 @@
                     </div>
 
                 </section>
-
+                
                 <section class="right-col">
                     <div class="tabs-card">
                         <div class="tabs">
@@ -103,7 +107,7 @@
                                 <canvas id="mapCanvas"></canvas>
                             </div>
                             <div id="cam-container">
-                                <img id="cameraFeed" src="https://localhost:8080/stream topic=/camera/image.raw" alt="Imagenes del robot">
+                                <img id="cameraFeed" src="http://localhost:8080/stream?topic=/camera/image_raw" alt="Imagenes de StockBot">
                             </div>
                         </div>
                     </div>
@@ -122,6 +126,7 @@
                         </div>
                     </div>
                 </section>
+        
             </div>
         </main>
     </div>
