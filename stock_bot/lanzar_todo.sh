@@ -70,10 +70,12 @@ source /opt/ros/jazzy/setup.bash; source $WORKSPACE_DIR/install/setup.bash;
 ros2 run stock_bot_patrol patroller; 
 exec bash"
 
-# Terminal 5: Chatbot de IA (NUEVO)
+# Terminal 5: Chatbot de IA
 gnome-terminal --tab --title="5. CHATBOT IA" -- bash -c "
-source /opt/ros/jazzy/setup.bash; source $WORKSPACE_DIR/install/setup.bash; 
-ros2 run stock_bot chatbot; 
+source /opt/ros/jazzy/setup.bash; 
+source $WORKSPACE_DIR/install/setup.bash; 
+source ~/virtualenvs/rosenv/bin/activate; # <--- LA LLAVE MAESTRA
+ros2 run stock_bot chatbot.py; 
 exec bash"
 
 # Terminal 6: Control

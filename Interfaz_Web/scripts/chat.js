@@ -18,8 +18,29 @@ function initChatROS(rosConnection) {
 
     // Qué hacer cuando StockBot nos responde
     chatSub.subscribe(function(msg) {
+        let texto = msg.data;
         let history = document.getElementById('chat-history');
-        history.innerHTML += `<p style="margin:0; color:#1976d2;"><strong>🤖 StockBot:</strong> ${msg.data}</p>`;
+
+        // --- MAGIA DE LA IA: DETECCIÓN DE CÓDIGOS SECRETOS ---
+        if (texto.includes("[CMD:PATROL_ON]")) {
+            texto = texto.replace("[CMD:PATROL_ON]", "").trim(); // Borramos el código para que el usuario no lo vea
+            controlPatrol(1); // Simulamos que el usuario pulsó el botón "Activar Patrulla"
+        } 
+        else if (texto.includes("[CMD:PATROL_OFF]")) {
+            texto = texto.replace("[CMD:PATROL_OFF]", "").trim();
+            controlPatrol(0); // Simulamos botón "Parar Patrulla"
+        }
+        else if (texto.includes("[CMD:NAV_1]")) {
+            texto = texto.replace("[CMD:NAV_1]", "").trim();
+            sendRobot(1); // Simulamos botón "Estantería 1"
+        }
+        else if (texto.includes("[CMD:NAV_2]")) {
+            texto = texto.replace("[CMD:NAV_2]", "").trim();
+            sendRobot(2); // Simulamos botón "Cajas 1"
+        }
+
+        // Imprimimos el mensaje limpio en el chat
+        history.innerHTML += `<p style="margin:0; color:#1976d2;"><strong>🤖 StockBot:</strong> ${texto}</p>`;
         history.scrollTop = history.scrollHeight; // Auto-scroll hacia abajo
     });
 }
