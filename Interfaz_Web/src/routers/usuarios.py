@@ -1,4 +1,6 @@
-from fastapi import APIRouter, Depends, HTTPException, status
+import base64
+import json
+from fastapi import APIRouter, Depends, HTTPException, status, Response
 from sqlalchemy.orm import Session
 from ..database import get_db
 from .. import models, schemas
@@ -28,23 +30,33 @@ def registrar_usuario(usuario: schemas.UsuarioCreate, db: Session = Depends(get_
     return nuevo_usuario
 
 @router.post("/login")
-def login(datos_login: schemas.LoginRequest, db: Session = Depends(get_db)):
-    # Buscar al usuario por email
+def login(datos_login: schemas.LoginRequest, response: Response, db: Session = Depends(get_db)):
     user = db.query(models.Usuario).filter(models.Usuario.Email == datos_login.Email).first()
     
-    # Validar existencia y contraseña
     if not user or user.Contraseña != datos_login.Contraseña:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Email o contraseña incorrectos"
         )
     
-    # 3. Retornar éxito (en un estándar real aquí daríamos un Token JWT)
-    return {
-        "mensaje": "Login exitoso",
-        "usuario": {
-            "id": user.ID,
-            "nombre": user.Nombre,
-            "email": user.Email
-        }
+    # Creamos un diccionario con la info que queremos guardar en la cookie
+    user_info = {
+        "id": user.ID,
+        "nombre": user.Nombre,
+        "email": user.Email
     }
+
+    # "Ciframos" (Codificamos) en Base64 para que no sea texto plano en el navegador
+    user_data_str = json.dumps(user_info)
+    encoded_data = base64.b64encode(user_data_str.encode()).decode()
+
+    # Seteamos la cookie
+    response.set_cookie(
+        key="session_user", 
+        value=encoded_data,
+        max_age=3600, # Expira en 1 hora
+        httponly=False, # Importante: False para que JavaScript PUEDA leerla
+        samesite="lax"
+    )
+    
+    return {"mensaje": "Login exitoso", "usuario": user_info}
