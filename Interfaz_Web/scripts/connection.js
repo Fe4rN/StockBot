@@ -61,6 +61,11 @@ function attempt_connection(robot_address) {
         if (typeof initMapPoseSubscription === "function") {
             initMapPoseSubscription();
         }
+
+        // 4. Activar el chat de IA
+        if (typeof initChatROS === "function") {
+            initChatROS(data.ros);
+        }
     });
 
     //  Callback de ERROR
@@ -154,7 +159,14 @@ function sendRobot(pointId) {
     });
 
     let statusElement = document.getElementById("status_text");
-    statusElement.innerText = "Viajando a la estantería " + pointId + "...";
+
+    if(pointId == 1){
+        statusElement.innerText = "Viajando a la estantería 1...";
+    }
+    else if(pointId == 2){
+        statusElement.innerText = "Viajando a las cajas 1...";
+    }
+
     statusElement.style.color = "blue";
 
     navClient.callService(request, function(result) {
