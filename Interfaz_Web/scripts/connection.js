@@ -55,6 +55,8 @@ function attempt_connection(robot_address) {
         // 2. Activar la escucha de la cámara
         subscribeToCameraResults();
 
+        initSecuritySubscriber();
+
         // 3. Activar el mapa
         if (typeof initMapPoseSubscription === "function") {
             initMapPoseSubscription();
@@ -166,7 +168,65 @@ function sendRobot(pointId) {
     });
 }
 
-// Función para suscribirse a la cámara
+// Función para activar el escaneo de productos 
+function activarEscaneo() {
+    if (!data.connected) {
+        alert("Primero conéctate al robot");
+        return;
+    }
+
+    // Definición del servicio Trigger
+    let scanClient = new ROSLIB.Service({
+        ros : data.ros,
+        name : '/activar_escaneo',
+        serviceType : 'std_srvs/Trigger'
+    });
+
+    // Feedback visual inmediato en la interfaz
+    let statusElement = document.getElementById("status_text");
+    let scanStatus = document.getElementById("scan-status");
+
+    scanStatus.innerText = "BUSCANDO...";
+    scanStatus.style.color = "#1976d2"; // Azul de tu paleta
+    statusElement.style.color = "#1976d2";
+
+    scanClient.callService(new ROSLIB.ServiceRequest({}), function(result) {
+        console.log("Servicio de escaneo activado con éxito");
+    });
+}
+
+function pararEscaneo() {
+    if (!data.connected) return;
+
+    let stopScanClient = new ROSLIB.Service({
+        ros : data.ros,
+        name : '/detener_escaneo',
+        serviceType : 'std_srvs/Trigger'
+    });
+
+    stopScanClient.callService(new ROSLIB.ServiceRequest({}), function(result) {
+        // 1. Volvemos al texto inicial en el span
+        let scanStatus = document.getElementById("scan-status");
+        if (scanStatus) {
+            scanStatus.innerText = "En espera";
+            scanStatus.style.color = "#0a2540"; // Tu color azul oscuro original
+            scanStatus.style.fontWeight = "800";
+        }
+
+        // 2. Opcional: Si el contenedor padre tenía algún color especial, lo reseteamos
+        let allStatusTexts = document.querySelectorAll("#status_text");
+        allStatusTexts.forEach(element => {
+            // Solo reseteamos el que está en la zona de escaneo (el que tiene el span)
+            if (element.querySelector("#scan-status")) {
+                element.style.color = "#0a2540";
+            }
+        });
+
+        console.log("Escaneo detenido: Interfaz reseteada al estado inicial.");
+    });
+}
+
+// Función para suscribirse a la cámara (Escucha lo que detecta el Python)
 function subscribeToCameraResults() {
     let resultSubscriber = new ROSLIB.Topic({
         ros : data.ros,
@@ -175,20 +235,68 @@ function subscribeToCameraResults() {
     });
 
     resultSubscriber.subscribe(function(message) {
-        let statusElement = document.getElementById("status_text");
-        
-        // Mejorado: Solo mostramos si lo encuentra o no, SI YA está buscando.
-        if (statusElement.innerText.includes("Buscando producto")) {
-            if (message.data === "Encontrado") {
-                statusElement.innerText = "¡Encontrado! El producto está en la estantería.";
-                statusElement.style.color = "green";
-            } else if (message.data === "No encontrado") {
-                statusElement.innerText = "Buscando producto... (No encontrado en la vista actual)";
-                statusElement.style.color = "orange";
+        let scanStatus = document.getElementById("scan-status");
+
+        if (scanStatus) {
+            if (message.data !== "No encontrado") {
+                // Actualizamos solo el valor del producto detectado
+                scanStatus.innerText = message.data.toUpperCase(); 
+                scanStatus.style.color = "#2e7d32"; // El verde de éxito
+                console.log("📦 Producto detectado: " + message.data);
             }
         }
     });
 }
+
+// deteccion de personas 
+function initSecuritySubscriber() {
+    let intruderListener = new ROSLIB.Topic({
+        ros : data.ros,
+        name : '/alertas_intrusion',
+        messageType : 'std_msgs/String'
+    });
+
+    intruderListener.subscribe(function(message) {
+        console.warn('¡ALERTA!: ' + message.data);
+        
+        // 👇 CAMBIO CLAVE: Buscamos TODOS los elementos que tengan este ID
+        let allStatusTexts = document.querySelectorAll("#status_text");
+        
+        let securityStatus = document.getElementById("security_status");
+        let panelElement = document.getElementById("security_panel");
+
+        // 1. Actualizamos AMBOS textos de estado a la vez
+        allStatusTexts.forEach(element => {
+            element.innerText = "🚨 " + message.data;
+            element.style.color = "red";
+            element.style.fontWeight = "bold";
+        });
+
+        // 2. Ponemos el panel específico de seguridad en rojo
+        if (securityStatus && panelElement) {
+            securityStatus.innerText = "🚨 " + message.data;
+            securityStatus.style.color = "white";
+            panelElement.style.backgroundColor = "#ff0000";
+        }
+
+        // 3. Reset automático tras 5 segundos
+        setTimeout(() => {
+            allStatusTexts.forEach(element => {
+                // Volvemos al estado original (puedes ajustarlo si prefieres otro texto)
+                element.innerText = "Sistema Normal / En espera";
+                element.style.color = "black";
+                element.style.fontWeight = "normal";
+            });
+
+            if (securityStatus && panelElement) {
+                securityStatus.innerText = "Sistema Normal";
+                securityStatus.style.color = "black";
+                panelElement.style.backgroundColor = "#f0f0f0";
+            }
+        }, 5000);
+    });
+}
+
 
 /**
  * Llama al servicio de patrulla de StockBot.
