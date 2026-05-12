@@ -71,3 +71,10 @@ function handleChatKeyPress(event) {
         sendChatMessage();
     }
 }
+
+function toggleChat() {
+    console.log("Dado");
+    const chat_ia = document.getElementById("container-chat");
+
+    chat_ia.classList.toggle("hidden");
+}

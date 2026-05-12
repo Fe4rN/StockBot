@@ -23,7 +23,25 @@
                     <button class="robot-btn">StockBot 5</button>
                 </nav>
                 <button class="add-robot-btn">Añadir robot</button>
+                <div class="div-ia">
+                    <button onclick="toggleChat()" class="btn-ia">🤖</button>
+                    <div class="chat-container hidden" id="container-chat">
+                        <div class="chat-title">
+                            <p>Asistente IA</p>
+                        </div>
+                        <div id="chat-history">
+                            <p><strong>StockBot:</strong> ¡Hola! Soy el cerebro de tu almacén. ¿Qué necesitas?</p>
+                        </div>
+                        <hr>
+                        <div class="chat-writer">
+                            <input type="text" id="chat-input" placeholder="Pregúntame algo..." onkeypress="handleChatKeyPress(event)">
+                            <button class="nav-btn" onclick="sendChatMessage()">Enviar</button>
+                        </div>
+                    </div>
+                </div>
             </div>
+
+            
         </aside>
 
         <main class="main">
