@@ -59,6 +59,11 @@ function attempt_connection(robot_address) {
         if (typeof initMapPoseSubscription === "function") {
             initMapPoseSubscription();
         }
+
+        // 4. Activar el chat de IA
+        if (typeof initChatROS === "function") {
+            initChatROS(data.ros);
+        }
     });
 
     //  Callback de ERROR

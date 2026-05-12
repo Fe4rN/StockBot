@@ -1,0 +1,52 @@
+// Variables para los topics de ROS
+let chatPub = null;
+let chatSub = null;
+
+// Esta función se llama para preparar los topics (deberías llamarla cuando ROS conecte con éxito)
+function initChatROS(rosConnection) {
+    chatPub = new ROSLIB.Topic({
+        ros: rosConnection,
+        name: '/chat_input',
+        messageType: 'std_msgs/String'
+    });
+
+    chatSub = new ROSLIB.Topic({
+        ros: rosConnection,
+        name: '/chat_output',
+        messageType: 'std_msgs/String'
+    });
+
+    // Qué hacer cuando StockBot nos responde
+    chatSub.subscribe(function(msg) {
+        let history = document.getElementById('chat-history');
+        history.innerHTML += `<p style="margin:0; color:#1976d2;"><strong>🤖 StockBot:</strong> ${msg.data}</p>`;
+        history.scrollTop = history.scrollHeight; // Auto-scroll hacia abajo
+    });
+}
+
+// Función para enviar mensajes
+function sendChatMessage() {
+    let input = document.getElementById('chat-input');
+    let texto = input.value.trim();
+    
+    if(texto === '' || !chatPub) return;
+
+    // 1. Mostrar mi propio mensaje en la pantalla
+    let history = document.getElementById('chat-history');
+    history.innerHTML += `<p style="margin:0; color:#333;"><strong>🧑‍💻 Tú:</strong> ${texto}</p>`;
+    history.scrollTop = history.scrollHeight;
+
+    // 2. Enviar a ROS 2
+    let msg = new ROSLIB.Message({ data: texto });
+    chatPub.publish(msg);
+
+    // 3. Limpiar la caja de texto
+    input.value = '';
+}
+
+// Para poder enviar dándole al "Enter"
+function handleChatKeyPress(event) {
+    if (event.key === "Enter") {
+        sendChatMessage();
+    }
+}
