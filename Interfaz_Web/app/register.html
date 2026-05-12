@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="../styles/main.css">
+    <link rel="stylesheet" href="../styles/forms.css">
+    <title>Registro</title>
+</head>
+<body>
+    <main class="main-content">
+        <div class="form-container" id="register-container">
+            <div class="title-form">
+                <h1>StockBot</h1>
+                <h2>Crea tu cuenta</h2>
+                <p>Registrate para comenzar a gestionar tu almacén.</p>
+            </div>
+            <form id="register-form" class="form-stockbot">
+                <div class="form-group">
+                    <label for="user" class="form-label">Usuario</label>
+                    <input 
+                        type="text"
+                        id="user"
+                        class="form-input"
+                        name="user"
+                        placeholder="tu_usuario"
+                        required>
+                </div>
+                <div class="form-group">
+                    <label for="email" class="form-label">Email</label>
+                    <input 
+                        type="text"
+                        id="email"
+                        class="form-input"
+                        name="email"
+                        placeholder="tu@gmail.com"
+                        required>
+                </div><div class="form-group">
+                    <label for="password" class="form-label">Contraseña</label>
+                    <input 
+                        type="password"
+                        id="password"
+                        class="form-input"
+                        name="password"
+                        placeholder="Escribe una contraseña"
+                        required>
+                </div>
+                <div class="form-group">
+                    <label for="repassword" class="form-label">Usuario</label>
+                    <input 
+                        type="password"
+                        id="repassword"
+                        class="form-input"
+                        name="repassword"
+                        placeholder="Repite la contraseña"
+                        required>
+                </div>
+                <div class="form-group" id="checkbox-div">
+                    <input type="checkbox" id="checkbox-terms">
+                    <label for="checkbox-terms">Acepto los términos de servicio</label>
+                </div>
+                <div class="form-buttons">
+                    <button type="submit" class="btn-crear">Crear cuenta</button>
+                    <button class="btn-cancelar">Cancelar</button>
+                </div>
+            </form>
+            <p>¿Ya tienes una cuenta? <a href="./login.html">Inicia sesión</a></p>
+
+        </div>
+    </main>
+</body>
+</html>
