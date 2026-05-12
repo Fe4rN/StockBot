@@ -195,6 +195,37 @@ function activarEscaneo() {
     });
 }
 
+function pararEscaneo() {
+    if (!data.connected) return;
+
+    let stopScanClient = new ROSLIB.Service({
+        ros : data.ros,
+        name : '/detener_escaneo',
+        serviceType : 'std_srvs/Trigger'
+    });
+
+    stopScanClient.callService(new ROSLIB.ServiceRequest({}), function(result) {
+        // 1. Volvemos al texto inicial en el span
+        let scanStatus = document.getElementById("scan-status");
+        if (scanStatus) {
+            scanStatus.innerText = "En espera";
+            scanStatus.style.color = "#0a2540"; // Tu color azul oscuro original
+            scanStatus.style.fontWeight = "800";
+        }
+
+        // 2. Opcional: Si el contenedor padre tenía algún color especial, lo reseteamos
+        let allStatusTexts = document.querySelectorAll("#status_text");
+        allStatusTexts.forEach(element => {
+            // Solo reseteamos el que está en la zona de escaneo (el que tiene el span)
+            if (element.querySelector("#scan-status")) {
+                element.style.color = "#0a2540";
+            }
+        });
+
+        console.log("Escaneo detenido: Interfaz reseteada al estado inicial.");
+    });
+}
+
 // Función para suscribirse a la cámara (Escucha lo que detecta el Python)
 function subscribeToCameraResults() {
     let resultSubscriber = new ROSLIB.Topic({
@@ -204,30 +235,15 @@ function subscribeToCameraResults() {
     });
 
     resultSubscriber.subscribe(function(message) {
-        let statusElement = document.getElementById("status_text");
         let scanStatus = document.getElementById("scan-status");
 
-        // Si recibimos "No encontrado", simplemente actualizamos el estado visual
-        if (message.data === "No encontrado") {
-            if (scanStatus.innerText === "BUSCANDO...") {
-                statusElement.innerText = "Escaneando... asegúrate de que el código esté de frente.";
-                statusElement.style.color = "#1976d2"; // Azul UPV/StockBot
+        if (scanStatus) {
+            if (message.data !== "No encontrado") {
+                // Actualizamos solo el valor del producto detectado
+                scanStatus.innerText = message.data.toUpperCase(); 
+                scanStatus.style.color = "#2e7d32"; // El verde de éxito
+                console.log("📦 Producto detectado: " + message.data);
             }
-        } 
-        // Si recibimos CUALQUIER OTRA COSA (el nombre del producto)
-        else {
-            // 1. Actualizamos el texto grande de estado
-            statusElement.innerText = "¡OPERACIÓN EXITOSA!";
-            statusElement.style.color = "#2e7d32"; // Tu verde de btn-success
-
-            // 2. Mostramos el nombre del producto detectado en el mini-panel
-            scanStatus.innerText = message.data.toUpperCase(); 
-            scanStatus.style.color = "#2e7d32";
-
-            console.log("📦 Producto detectado en el almacén: " + message.data);
-            
-            // Opcional: Podrías hacer que el robot pare de moverse aquí si quieres
-            // moveRobot(0,0); 
         }
     });
 }
