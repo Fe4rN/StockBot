@@ -1,8 +1,12 @@
-// Variables para los topics de ROS
+/** @type {ROSLIB.Topic} */
 let chatPub = null;
+/** @type {ROSLIB.Topic} */
 let chatSub = null;
 
-// Esta función se llama para preparar los topics (deberías llamarla cuando ROS conecte con éxito)
+/**
+ * Inicializa los topics de ROS para el chat y configura el parser de comandos.
+ * @param {ROSLIB.Ros} rosConnection - Conexión activa a ROS Bridge.
+ */
 function initChatROS(rosConnection) {
     chatPub = new ROSLIB.Topic({
         ros: rosConnection,
@@ -16,65 +20,63 @@ function initChatROS(rosConnection) {
         messageType: 'std_msgs/String'
     });
 
-    // Qué hacer cuando StockBot nos responde
     chatSub.subscribe(function(msg) {
         let texto = msg.data;
-        let history = document.getElementById('chat-history');
+        const history = document.getElementById('chat-history');
 
-        // --- MAGIA DE LA IA: DETECCIÓN DE CÓDIGOS SECRETOS ---
         if (texto.includes("[CMD:PATROL_ON]")) {
-            texto = texto.replace("[CMD:PATROL_ON]", "").trim(); // Borramos el código para que el usuario no lo vea
-            controlPatrol(1); // Simulamos que el usuario pulsó el botón "Activar Patrulla"
+            texto = texto.replace("[CMD:PATROL_ON]", "").trim();
+            controlPatrol(1);
         } 
         else if (texto.includes("[CMD:PATROL_OFF]")) {
             texto = texto.replace("[CMD:PATROL_OFF]", "").trim();
-            controlPatrol(0); // Simulamos botón "Parar Patrulla"
+            controlPatrol(0);
         }
         else if (texto.includes("[CMD:NAV_1]")) {
             texto = texto.replace("[CMD:NAV_1]", "").trim();
-            sendRobot(1); // Simulamos botón "Estantería 1"
+            sendRobot(1);
         }
         else if (texto.includes("[CMD:NAV_2]")) {
             texto = texto.replace("[CMD:NAV_2]", "").trim();
-            sendRobot(2); // Simulamos botón "Cajas 1"
+            sendRobot(2);
         }
 
-        // Imprimimos el mensaje limpio en el chat
         history.innerHTML += `<p style="margin:0; color:#1976d2;"><strong>🤖 StockBot:</strong> ${texto}</p>`;
-        history.scrollTop = history.scrollHeight; // Auto-scroll hacia abajo
+        history.scrollTop = history.scrollHeight;
     });
 }
 
-// Función para enviar mensajes
+/**
+ * Procesa y envía el mensaje del usuario al topic de entrada de ROS.
+ */
 function sendChatMessage() {
-    let input = document.getElementById('chat-input');
-    let texto = input.value.trim();
+    const input = document.getElementById('chat-input');
+    const texto = input.value.trim();
     
     if(texto === '' || !chatPub) return;
 
-    // 1. Mostrar mi propio mensaje en la pantalla
-    let history = document.getElementById('chat-history');
+    const history = document.getElementById('chat-history');
     history.innerHTML += `<p style="margin:0; color:#333;"><strong>🧑‍💻 Tú:</strong> ${texto}</p>`;
     history.scrollTop = history.scrollHeight;
 
-    // 2. Enviar a ROS 2
-    let msg = new ROSLIB.Message({ data: texto });
-    chatPub.publish(msg);
-
-    // 3. Limpiar la caja de texto
+    chatPub.publish(new ROSLIB.Message({ data: texto }));
     input.value = '';
 }
 
-// Para poder enviar dándole al "Enter"
+/**
+ * Gestiona el envío de mensajes al pulsar la tecla Enter.
+ * @param {KeyboardEvent} event - Evento de teclado capturado.
+ */
 function handleChatKeyPress(event) {
     if (event.key === "Enter") {
         sendChatMessage();
     }
 }
 
+/**
+ * Alterna la visibilidad del contenedor de la interfaz del chatbot.
+ */
 function toggleChat() {
-    console.log("Dado");
     const chat_ia = document.getElementById("container-chat");
-
     chat_ia.classList.toggle("hidden");
 }

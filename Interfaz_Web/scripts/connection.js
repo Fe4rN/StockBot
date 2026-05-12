@@ -157,7 +157,14 @@ function sendRobot(pointId) {
     });
 
     let statusElement = document.getElementById("status_text");
-    statusElement.innerText = "Viajando a la estantería " + pointId + "...";
+
+    if(pointId == 1){
+        statusElement.innerText = "Viajando a la estantería 1...";
+    }
+    else if(pointId == 2){
+        statusElement.innerText = "Viajando a las cajas 1...";
+    }
+
     statusElement.style.color = "blue";
 
     navClient.callService(request, function(result) {

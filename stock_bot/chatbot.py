@@ -1,143 +1,210 @@
 #!/usr/bin/env python3
+"""
+Este módulo implementa el cerebro cognitivo de StockBot mediante un LLM local.
+
+Gestiona la interpretación de lenguaje natural para la ejecución de tareas de 
+logística y patrulla, integrando una arquitectura de razonamiento (CoT) y 
+comunicación asíncrona con los servicios de navegación de ROS 2.
+
+Classes:
+  StockBotChat
+
+"""
+
 import rclpy
 from rclpy.node import Node
 from std_msgs.msg import String
 from llama_cpp import Llama
 import os
-from datetime import datetime
 from stock_bot_interfaces.srv import GoToPoint
 
 class StockBotChat(Node):
+    """
+    Nodo que procesa lenguaje natural y lo traduce en comandos de ROS 2.
+
+    Attributes:
+      llm (Llama): Instancia del modelo Qwen 2.5 7B cargado en GPU.
+      history (list): Memoria circular de la conversación actual.
+      max_history (int): Límite de mensajes almacenados en el historial.
+      pending_action (str): Almacena la etiqueta de acción a la espera de confirmación.
+      identidad_stockbot (str): System prompt que define el rol industrial del robot.
+
+    Methods:
+      listener_callback(msg): Procesa la entrada del usuario y decide la acción.
+      generar_charla(texto): Gestiona la respuesta de texto cuando no hay comandos.
+      lanzar_pregunta_confirmacion(evento): Solicita validación al usuario.
+      ejecutar_accion_pendiente(): Ejecuta los servicios tras la confirmación.
+    """
+
     def __init__(self):
+        """ Inicializa el nodo, el modelo LLM y los clientes de servicio. """
         super().__init__('chatbot_node')
         
-        # Ruta al modelo 7B
-        model_path = os.path.expanduser("~/StockBot/stock_bot/models/Qwen2.5-7B-Instruct-Q4_K_M.gguf")
-        
-        self.get_logger().info('Cargando Qwen 2.5 7B en la RTX 4060...')
-        self.llm = Llama(model_path=model_path, n_gpu_layers=-1, n_ctx=2048, verbose=False)
-        self.get_logger().info('¡Cerebro activado! Filtro de dominio y Juez listos.')
+        try:
+            model_path = os.path.expanduser("~/StockBot/stock_bot/models/Qwen2.5-7B-Instruct-Q4_K_M.gguf")
+            
+            self.get_logger().info('Cargando Cerebro 7B...')
+            self.llm = Llama(model_path=model_path, n_gpu_layers=-1, n_ctx=2048, verbose=False)
+            
+            self.history = [] 
+            self.max_history = 4 
+            self.pending_action = None
 
-        self.pending_action = None
-        self.fecha_hoy = datetime.now().strftime("%A, %d de mayo de 2026")
+            self.identidad_stockbot = (
+                "Eres StockBot, un robot mozo de almacén del Equipo 5. "
+                "Funciones: Patrullar (vigilancia), Navegar a Estantería 1 ([NAV_1]), "
+                "Navegar a Cajas 1 ([NAV_2]) y leer códigos de barras. "
+                "Eres un trabajador industrial. No eres un asistente personal ni de oficina."
+            )
 
-        self.sub = self.create_subscription(String, '/chat_input', self.listener_callback, 10)
-        self.pub = self.create_publisher(String, '/chat_output', 10)
-        self.patrol_client = self.create_client(GoToPoint, '/control_patrulla')
-        self.nav_client = self.create_client(GoToPoint, '/ir_a_estanteria')
+            self.sub = self.create_subscription(String, '/chat_input', self.listener_callback, 10)
+            self.pub = self.create_publisher(String, '/chat_output', 10)
+            
+            self.patrol_client = self.create_client(GoToPoint, '/control_patrulla')
+            self.nav_client = self.create_client(GoToPoint, '/ir_a_estanteria')
+            
+            self.get_logger().info('✅ StockBot operativo y listo para el turno.')
+        except Exception as e:
+            self.get_logger().error(f'❌ Error en la carga del chatbot: {str(e)}')
 
     def listener_callback(self, msg):
+        """
+        Analiza el mensaje entrante utilizando una cadena de pensamiento (CoT).
+
+        Args:
+          msg (std_msgs.msg.String): Mensaje de texto recibido desde la interfaz.
+        """
         user_input = msg.data.strip()
         user_input_lower = user_input.lower()
+
+        if any(w in user_input_lower for w in ["no", "mal", "error", "he dicho"]):
+            self.pending_action = None
+
+        contexto_chat = "".join([f"{h['role']}: {h['content']}\n" for h in self.history])
+        estado_actual = f"Esperando confirmación para: {self.pending_action}" if self.pending_action else "Libre"
+
+        prompt_unico = f"""<|im_start|>system
+{self.identidad_stockbot}
+Conversación:
+{contexto_chat}
+Estado: {estado_actual}
+
+Instrucciones:
+- Analiza si el usuario confirma una orden o da una nueva.
+- Etiquetas: [PATROL_ON], [PATROL_OFF], [NAV_1], [NAV_2], [NONE], [RECHAZAR].
+- Responde estrictamente con este formato:
+ANÁLISIS: <razonamiento>
+DECISIÓN: [ETIQUETA]
+<|im_end|>
+<|im_start|>user
+{user_input}<|im_end|>
+<|im_start|>assistant
+ANÁLISIS: """
+
+        output = self.llm(prompt_unico, max_tokens=256, stop=["<|im_end|>"], echo=False)
+        respuesta_completa = output['choices'][0]['text']
         
-        self.get_logger().info(f'--- PROCESANDO: "{user_input}" ---')
+        try:
+            parte_decision = respuesta_completa.split("DECISIÓN:")[-1].upper()
+            if "[NAV_1]" in parte_decision: decision = "[NAV_1]"
+            elif "[NAV_2]" in parte_decision: decision = "[NAV_2]"
+            elif "[PATROL_ON]" in parte_decision: decision = "[PATROL_ON]"
+            elif "[PATROL_OFF]" in parte_decision: decision = "[PATROL_OFF]"
+            elif "[RECHAZAR]" in parte_decision: decision = "[RECHAZAR]"
+            else: decision = "[NONE]"
+        except:
+            decision = "[NONE]"
 
-        # ========================================================
-        # 1. FILTRO DE DOMINIO (Guardrail)
-        # ========================================================
-        # Esto es lo que evita que hable de comida o tonterías.
-        prompt_filtro = f"""<|im_start|>system
-Eres un filtro de seguridad industrial. Tu misión es decidir si el mensaje es RELEVANTE para un robot de almacén (logística, seguridad, quién eres, navegación).
-Si el usuario habla de temas personales, comida, ocio o cosas fuera del almacén, responde RECHAZAR.
-Si el usuario da órdenes o pregunta sobre tu trabajo, responde ACEPTAR.
-Ejemplos:
-"Me voy a comer" -> RECHAZAR
-"Vete a la estantería" -> ACEPTAR
-"¿Qué tal el partido?" -> RECHAZAR
-"¿Qué sabes hacer?" -> ACEPTAR
-<|im_end|>
-<|im_start|>user
-{user_input}<|im_end|>
-<|im_start|>assistant
-"""
-        res_filtro = self.llm(prompt_filtro, max_tokens=10, stop=["<|im_end|>"], echo=False)
-        clasificacion = res_filtro['choices'][0]['text'].strip().upper()
-
-        if "RECHAZAR" in clasificacion:
-            self.get_logger().info('[DEBUG] Mensaje fuera de dominio. Rechazando.')
-            self.responder("No puedo ayudarte con eso. Mis funciones se limitan exclusivamente a la logística y seguridad del almacén.")
-            return
-
-        # ========================================================
-        # 2. LÓGICA DE CONFIRMACIÓN
-        # ========================================================
-        if self.pending_action:
-            if any(w in user_input_lower for w in ["si", "vale", "adelante", "hazlo", "confirmo"]):
-                self.ejecutar_accion_pendiente()
-                return
-            else:
-                self.get_logger().info('[DEBUG] Acción pendiente cancelada por cambio de tema.')
-                self.pending_action = None
-
-        # ========================================================
-        # 3. EL JUEZ (Clasificador de Órdenes)
-        # ========================================================
-        prompt_juez = f"""<|im_start|>system
-Clasifica la orden mecánica: [PATROL_ON], [PATROL_OFF], [NAV_1], [NAV_2] o [NONE].
-"Vigila el pasillo" -> [PATROL_ON]
-"Vete a las cajas" -> [NAV_2]
-"¿De qué eres capaz?" -> [NONE]
-<|im_end|>
-<|im_start|>user
-{user_input}<|im_end|>
-<|im_start|>assistant
-["""
-        res_juez = self.llm(prompt_juez, max_tokens=10, stop=["]"], echo=False)
-        evento = "[" + res_juez['choices'][0]['text'].strip().upper() + "]"
-
-        if "[NONE]" in evento:
+        if decision == "[RECHAZAR]":
+            self.pending_action = None
+            self.responder("Esa petición no entra en mis protocolos logísticos.")
+        elif self.pending_action and any(w in user_input_lower for w in ["si", "vale", "adelante", "hazlo"]):
+            self.ejecutar_accion_pendiente()
+        elif decision == "[NONE]":
+            self.pending_action = None
             self.generar_charla(user_input)
         else:
-            self.pending_action = evento
-            self.lanzar_pregunta_confirmacion(evento)
+            self.pending_action = decision
+            self.lanzar_pregunta_confirmacion(decision)
+
+        self.update_history("user", user_input)
 
     def generar_charla(self, texto):
-        prompt = (
-            f"<|im_start|>system\nHoy es {self.fecha_hoy}. Eres StockBot, robot de vigilancia del Equipo 5. "
-            f"Solo respondes sobre logística y seguridad. Sé técnico y breve.<|im_end|>\n"
-            f"<|im_start|>user\n{texto}<|im_end|>\n<|im_start|>assistant\n"
-        )
-        output = self.llm(prompt, max_tokens=64, stop=["<|im_end|>"], echo=False)
-        self.responder(output['choices'][0]['text'].strip())
+        """
+        Genera respuestas de texto para consultas fuera de comandos de movimiento.
 
-    def lanzar_pregunta_confirmacion(self, evento):
-        if "[PATROL_ON]" in evento: self.responder("¿Confirmas el inicio de la patrulla de vigilancia?")
-        elif "[NAV_1]" in evento: self.responder("¿Quieres que me desplace a la Estantería 1?")
-        elif "[NAV_2]" in evento: self.responder("¿Deseas que navegue hasta la zona de Cajas 1?")
+        Args:
+          texto (str): Entrada original del usuario.
+        """
+        contexto = "".join([f"<|im_start|>{h['role']}\n{h['content']}<|im_end|>\n" for h in self.history])
+        prompt = (f"<|im_start|>system\n{self.identidad_stockbot}\n{contexto}"
+                  f"<|im_start|>user\n{texto}<|im_end|>\n<|im_start|>assistant\n")
+        
+        output = self.llm(prompt, max_tokens=256, stop=["<|im_end|>"], echo=False)
+        res = output['choices'][0]['text'].strip()
+        
+        self.update_history("assistant", res)
+        self.responder(res)
 
     def ejecutar_accion_pendiente(self):
+        """ Ejecuta los servicios de ROS 2 basándose en la acción validada. """
         evento = self.pending_action
         self.pending_action = None
-        msg_ok = "Afirmativo. Ejecutando ahora."
         
-        if "[PATROL_ON]" in evento:
+        msg_ok = "Afirmativo. Ejecutando ahora."
+        if evento == "[PATROL_ON]":
             self.llamar_servicio(self.patrol_client, 1)
             self.responder(f"[CMD:PATROL_ON] {msg_ok}")
-        elif "[NAV_1]" in evento:
+        elif evento == "[NAV_1]":
             self.llamar_servicio(self.nav_client, 1)
             self.responder(f"[CMD:NAV_1] {msg_ok}")
-        elif "[NAV_2]" in evento:
+        elif evento == "[NAV_2]":
             self.llamar_servicio(self.nav_client, 2)
             self.responder(f"[CMD:NAV_2] {msg_ok}")
 
-    def responder(self, texto):
-        res = String()
-        res.data = texto
-        self.pub.publish(res)
-        self.get_logger().info(f'StockBot: {texto}')
-
     def llamar_servicio(self, cliente, valor):
+        """
+        Llama de forma asíncrona a un servicio GoToPoint.
+
+        Args:
+          cliente (ActionClient): Cliente del servicio a invocar.
+          valor (int): ID del punto u operación.
+        """
         if cliente.wait_for_service(timeout_sec=1.0):
             req = GoToPoint.Request()
             req.point_id = valor
             cliente.call_async(req)
 
+    def responder(self, texto):
+        """ Publica el string de respuesta en el topic /chat_output. """
+        res = String()
+        res.data = texto
+        self.pub.publish(res)
+        self.get_logger().info(f'StockBot: {texto}')
+
+    def update_history(self, role, content):
+        """ Gestiona la memoria FIFO del chat. """
+        self.history.append({"role": role, "content": content})
+        if len(self.history) > self.max_history:
+            self.history.pop(0)
+
+    def lanzar_pregunta_confirmacion(self, evento):
+        """ Solicita confirmación al usuario antes de proceder con una orden. """
+        if evento == "[PATROL_ON]": self.responder("He recibido la orden de patrulla. ¿Confirma?")
+        elif evento == "[NAV_1]": self.responder("¿Desea que me desplace a la Estantería 1?")
+        elif evento == "[NAV_2]": self.responder("¿Navego hacia la zona de Cajas 1?")
+
 def main(args=None):
+    """ Punto de entrada principal del nodo. """
     rclpy.init(args=args)
     node = StockBotChat()
-    rclpy.spin(node)
-    node.destroy_node()
-    rclpy.shutdown()
+    try:
+        rclpy.spin(node)
+    except KeyboardInterrupt:
+        pass
+    finally:
+        node.destroy_node()
+        rclpy.shutdown()
 
 if __name__ == '__main__':
     main()
