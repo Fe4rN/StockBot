@@ -2,7 +2,7 @@ import rclpy
 from rclpy.node import Node
 from sensor_msgs.msg import Image
 from std_msgs.msg import String
-from std_srvs.srv import Trigger # Servicio estándar para activar cosas
+from std_srvs.srv import Trigger 
 from cv_bridge import CvBridge
 import cv2
 from pyzbar import pyzbar
@@ -14,7 +14,7 @@ class BarcodeReader(Node):
         self.bridge = CvBridge()
         
         # --- ESTADO ---
-        self.buscando = False # Por defecto, no gasta CPU
+        self.buscando = False 
         
         # 1. Suscripción a cámara
         self.subscription = self.create_subscription(Image, '/camera/image_raw', self.image_callback, 10)
@@ -35,14 +35,13 @@ class BarcodeReader(Node):
         return response
 
     def image_callback(self, msg):
-        # SI NO ESTAMOS BUSCANDO, NO HACEMOS NADA (Ahorro total de CPU)
+        # SI NO ESTAMOS BUSCANDO, NO HACEMOS NADA
         if not self.buscando:
             return
 
         try:
             frame = self.bridge.imgmsg_to_cv2(msg, desired_encoding='bgr8')
             
-            # --- TU PROCESADO GANADOR ---
             h, w = frame.shape[:2]
             big = cv2.resize(frame, (int(w*1.5), int(h*1.5)), interpolation=cv2.INTER_LANCZOS4)
             gray = cv2.cvtColor(big, cv2.COLOR_BGR2GRAY)
@@ -66,7 +65,7 @@ class BarcodeReader(Node):
                 msg_status.data = data
                 self.publisher_.publish(msg_status)
                 
-                # ¡IMPORTANTE!: Una vez encontrado, nos volvemos a dormir
+                #Una vez encontrado, deja de buscar
                 self.buscando = False
                 self.get_logger().info('Producto detectado. Volviendo a modo espera.')
 

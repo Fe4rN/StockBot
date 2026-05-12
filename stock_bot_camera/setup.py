@@ -25,6 +25,7 @@ setup(
     entry_points={
         'console_scripts': [
             'barcode_reader = stock_bot_camera.barcode_reader:main',
+            'intruder_detector = stock_bot_camera.intruder_detector:main',
         ],
     },
 )

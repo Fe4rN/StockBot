@@ -74,4 +74,10 @@ source /opt/ros/jazzy/setup.bash; source $WORKSPACE_DIR/install/setup.bash;
 ros2 run stock_bot_camera barcode_reader; 
 exec bash"
 
+# Terminal 7: Vigilancia IA
+gnome-terminal --tab --title="7. VIGILANCIA" -- bash -c "
+source /opt/ros/jazzy/setup.bash; source $WORKSPACE_DIR/install/setup.bash; 
+ros2 run stock_bot_camera intruder_detector; 
+exec bash"
+
 echo "Sistema listo."

@@ -55,6 +55,8 @@ function attempt_connection(robot_address) {
         // 2. Activar la escucha de la cámara
         subscribeToCameraResults();
 
+        initSecuritySubscriber();
+
         // 3. Activar el mapa
         if (typeof initMapPoseSubscription === "function") {
             initMapPoseSubscription();
@@ -227,6 +229,55 @@ function subscribeToCameraResults() {
             // Opcional: Podrías hacer que el robot pare de moverse aquí si quieres
             // moveRobot(0,0); 
         }
+    });
+}
+
+// deteccion de personas 
+function initSecuritySubscriber() {
+    let intruderListener = new ROSLIB.Topic({
+        ros : data.ros,
+        name : '/alertas_intrusion',
+        messageType : 'std_msgs/String'
+    });
+
+    intruderListener.subscribe(function(message) {
+        console.warn('¡ALERTA!: ' + message.data);
+        
+        // 👇 CAMBIO CLAVE: Buscamos TODOS los elementos que tengan este ID
+        let allStatusTexts = document.querySelectorAll("#status_text");
+        
+        let securityStatus = document.getElementById("security_status");
+        let panelElement = document.getElementById("security_panel");
+
+        // 1. Actualizamos AMBOS textos de estado a la vez
+        allStatusTexts.forEach(element => {
+            element.innerText = "🚨 " + message.data;
+            element.style.color = "red";
+            element.style.fontWeight = "bold";
+        });
+
+        // 2. Ponemos el panel específico de seguridad en rojo
+        if (securityStatus && panelElement) {
+            securityStatus.innerText = "🚨 " + message.data;
+            securityStatus.style.color = "white";
+            panelElement.style.backgroundColor = "#ff0000";
+        }
+
+        // 3. Reset automático tras 5 segundos
+        setTimeout(() => {
+            allStatusTexts.forEach(element => {
+                // Volvemos al estado original (puedes ajustarlo si prefieres otro texto)
+                element.innerText = "Sistema Normal / En espera";
+                element.style.color = "black";
+                element.style.fontWeight = "normal";
+            });
+
+            if (securityStatus && panelElement) {
+                securityStatus.innerText = "Sistema Normal";
+                securityStatus.style.color = "black";
+                panelElement.style.backgroundColor = "#f0f0f0";
+            }
+        }, 5000);
     });
 }
 
