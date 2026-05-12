@@ -19,6 +19,7 @@ from stock_bot_interfaces.srv import GoToPoint
 from geometry_msgs.msg import PoseStamped
 import sys
 import json
+import requests
 from std_msgs.msg import String
 
 class PatrollerNode(Node):
@@ -72,11 +73,37 @@ class PatrollerNode(Node):
             sys.exit(1)
 
     def enviar_notificacion(self, mensaje, nivel="info"):
-        """Función auxiliar para enviar notificaciones a la web"""
+        """Envía notificaciones a la web (WebSockets) y a la Base de Datos (API REST)"""
+        
+        # 1. Enviar por ROS 2 (Tiempo Real para Websockets) - Esto no cambia
         msg = String()
-        datos = {"mensaje": mensaje, "nivel": nivel}
-        msg.data = json.dumps(datos)
+        datos_ros = {"mensaje": mensaje, "nivel": nivel}
+        msg.data = json.dumps(datos_ros)
         self.notif_pub.publish(msg)
+
+        # 2. Enviar a la API FastAPI (AQUÍ ESTÁ LA CORRECCIÓN)
+        try:
+            api_url = "http://127.0.0.1:8000/avisos/" 
+            
+            # Ajustamos el diccionario a lo que pide tu base de datos
+            datos_api = {
+                "Tipo": nivel,                 # info, error, success...
+                "Robot": "StockBot 4",         # El nombre de tu robot
+                "Almacen": "Principal",        # El almacén donde está trabajando
+                "Informacion": mensaje         # El texto de la notificación
+            }
+            
+            respuesta = requests.post(api_url, json=datos_api, timeout=2.0)
+            
+            # Añadimos .text al error para que si vuelve a fallar, nos diga el motivo exacto
+            if respuesta.status_code != 200:
+                self.get_logger().error(f"Fallo de la API: {respuesta.status_code} - {respuesta.text}")
+                
+        except requests.exceptions.RequestException as e:
+            self.get_logger().error(f"Error conectando con la base de datos: {e}")
+                
+        except requests.exceptions.RequestException as e:
+            self.get_logger().error(f"Error conectando con la base de datos: {e}")
 
     async def service_callback(self, request, response):
         """

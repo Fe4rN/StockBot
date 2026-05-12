@@ -56,3 +56,23 @@ function suscribirNotificaciones(rosInstance) {
         }
     });
 }
+async function cargarHistorialAPI() {
+    try {
+        const respuesta = await fetch("http://127.0.0.1:8000/avisos/"); 
+        if (!respuesta.ok) throw new Error("No se pudo conectar a la base de datos");
+        
+        const historial = await respuesta.json();
+        
+        const tbody = document.getElementById('notifications-body');
+        if (tbody) tbody.innerHTML = "";
+        
+        historial.forEach(aviso => {
+            // CORRECCIÓN: Leemos aviso.Informacion y aviso.Tipo
+            // Si la fecha en tu BBDD se llama distinto (ej. aviso.Fecha), cámbialo aquí abajo también:
+            addRobotNotificationFromDB(aviso.Informacion, aviso.Tipo, aviso.fecha_creacion); 
+        });
+        
+    } catch (error) {
+        console.error("Error cargando historial:", error);
+    }
+}
