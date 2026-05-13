@@ -346,3 +346,96 @@ body {
 .stop {
   width: 100%;
 }
+
+/*-------------- Elementos chatbot -------------*/
+
+.div-ia{
+  display: flex;
+  justify-content: center;
+  position: fixed;
+  bottom: 1rem;
+  left: 4rem;
+  z-index: 999;
+}
+
+.btn-ia{
+  padding: 1rem;
+  font-size: 2rem;
+  border-radius: 100%;
+  border: none;
+  background: linear-gradient(135deg,#1976d2,#36a3e7);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+  transition: 0.3s;
+  cursor: pointer;
+}
+
+.btn-ia:hover{
+  transform: scale(1.1) ;
+}
+
+.chat-container{
+  position:absolute;
+  bottom: 5rem;
+  left: 0;
+  display: flex;
+  flex-direction: column;
+  background-color: #ececec;
+  border-radius: 1rem 1rem 1rem 1rem;
+}
+
+.chat-title{
+  background: linear-gradient(135deg,#1976d2,#36a3e7);
+  border-radius: 1rem 1rem 0 0;
+  text-align: left;
+  padding: 1rem 0 1rem 1rem;
+}
+
+.chat-title p{
+  color: #FFFF;
+  font-weight: 700;
+  min-width: 20rem;
+}
+
+#chat-history{
+  height: 180px; 
+  overflow-y: auto; 
+  background: #fdfcfc; 
+  padding: 12px;
+  font-size: 1rem; 
+  display: flex; 
+  flex-direction: column; 
+  gap: .5rem;
+  min-height: 20rem;
+}
+
+#chat-history p{ 
+  padding: 0.5rem;
+  color: #1976d2; 
+  margin:0;
+  background: #FFFF;
+  border-radius: .5rem;
+  border: 1px solid gray;
+}
+
+.chat-writer{
+  display: flex;
+  flex-direction: row;
+  padding: 1rem;
+  background: #fdfcfc;
+  border-radius: 0 0 1rem 1rem;
+  gap: .5rem;
+}
+
+#chat-input{
+  border: 1px solid gray;
+  border-radius: .5rem;
+  background: #fff;
+  padding: 8px 12px;
+  color: #111;
+  outline: none;
+  width: 100%;
+}
+
+.hidden{
+  display: none;
+}

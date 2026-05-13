@@ -23,7 +23,25 @@
                     <button class="robot-btn">StockBot 5</button>
                 </nav>
                 <button class="add-robot-btn">Añadir robot</button>
+                <div class="div-ia">
+                    <button onclick="toggleChat()" class="btn-ia">🤖</button>
+                    <div class="chat-container hidden" id="container-chat">
+                        <div class="chat-title">
+                            <p>Asistente IA</p>
+                        </div>
+                        <div id="chat-history">
+                            <p><strong>StockBot:</strong> ¡Hola! Soy el cerebro de tu almacén. ¿Qué necesitas?</p>
+                        </div>
+                        <hr>
+                        <div class="chat-writer">
+                            <input type="text" id="chat-input" placeholder="Pregúntame algo..." onkeypress="handleChatKeyPress(event)">
+                            <button class="nav-btn" onclick="sendChatMessage()">Enviar</button>
+                        </div>
+                    </div>
+                </div>
             </div>
+
+            
         </aside>
 
         <main class="main">
@@ -58,6 +76,11 @@
                             Modo de operación actual: MANUAL
                         </div>
 
+                        <div id="security_panel" style="padding: 10px; background-color: #f0f0f0; border-radius: 5px; margin-bottom: 20px; text-align: center; border: 1px solid #ddd;">
+                            <strong>Estado de Seguridad:</strong> 
+                            <span id="security_status">Sistema Normal</span>
+                        </div>
+
                         <div class="panels-row">
                             <div class="panel">
                                 <h4 class="panel-title">Navegar a punto</h4>
@@ -72,6 +95,22 @@
                                     <button onclick="controlPatrol(0)" class="btn-control btn-stop btn-danger">Parar Patrulla</button>
                                     <p id="status_text">Esperando conexión...</p>
                                 </div>
+                            </div>
+                        </div>
+
+                        <div class="panel" style="margin-top: 20px;">
+                            <h4 class="panel-title" style="text-align: center;">Control de Inventario</h4>
+                            <div style="display: flex; gap: 10px; width: 100%;">
+                                <button id="scan-button" class="btn-success" style="flex: 2; border-radius: 12px; padding: 10px; max-width: 23rem;" onclick="activarEscaneo()">
+                                    🔍 ESCANEAR
+                                </button>
+                                <button id="stop-scan-button" class="btn-danger" style="flex: 1; border-radius: 12px; padding: 10px;" onclick="pararEscaneo()">
+                                     PARAR
+                                </button>
+                            </div>
+                            
+                            <div id="status_text" style="font-size: 14px; text-align: center; color: #0a2540; margin-top: 10px;">
+                                Estado: <span id="scan-status" style="font-weight: 800;">En espera</span>
                             </div>
                         </div>
                     </div>
@@ -95,17 +134,19 @@
                     </div>
                     <div class="manual-controls">
                         <h4 class="panel-title">CONTROLES MANUALES</h4>
-                        <div class="dpad">
-                            <div></div>
-                            <button class="dir-btn" onclick="moveRobot(0.2,0)">DELANTE</button>
-                            <div></div>
-                            <button class="dir-btn" onclick="moveRobot(0,0.5)">IZQUIERDA</button>
-                            <button class="btn-danger stop" onclick="moveRobot(0,0)">PARAR</button>
-                            <button class="dir-btn" onclick="moveRobot(0,-0.5)">DERECHA</button>
-                            <div></div>
-                            <button class="dir-btn" onclick="moveRobot(-0.2,0)">ATRAS</button>
-                            <div></div>
-                        </div>
+                            <div class="dpad">
+                                <div></div>
+                                <button class="dir-btn" onclick="moveRobot(0.2,0)">DELANTE</button>
+                                <div></div>
+
+                                <button class="dir-btn" onclick="moveRobot(0,0.5)">IZQUIERDA</button>
+                                <button class="btn-danger stop" onclick="moveRobot(0,0)">PARAR</button>
+                                <button class="dir-btn" onclick="moveRobot(0,-0.5)">DERECHA</button>
+
+                                <div></div>
+                                <button class="dir-btn" onclick="moveRobot(-0.2,0)">ATRAS</button>
+                                <div></div>
+                            </div>
                     </div>
                 </section>
         
@@ -117,5 +158,6 @@
     <script src="../scripts/connection.js"></script>
     <script src="../scripts/map_web.js"></script>
     <script src="../scripts/camera.js"></script>
+    <script src="../scripts/chat.js"></script>
 </body>
 </html>

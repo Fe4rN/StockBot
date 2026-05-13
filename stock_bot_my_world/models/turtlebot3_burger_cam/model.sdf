@@ -344,10 +344,10 @@
         <gz_frame_id>camera_rgb_frame</gz_frame_id>
         <camera name="pi_cam">
           <camera_info_topic>camera/camera_info</camera_info_topic>
-          <horizontal_fov>3.183</horizontal_fov>
+          <horizontal_fov>1.0</horizontal_fov>
           <image>
-            <width>320</width>
-            <height>240</height>
+            <width>640</width>
+            <height>480</height>
             <format>R8G8B8</format>
           </image>
           <clip>
