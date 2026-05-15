@@ -66,7 +66,6 @@ venv/
 
 *.bak
 *.tmp
-Interfaz_Web/react
 stock_bot_nav_punto/rviz/navigation.rviz
 stock_bot/models/qwen2-1_5b-instruct-q4_k_m.gguf
 stock_bot/models/Qwen2.5-7B-Instruct-Q4_K_M.gguf
