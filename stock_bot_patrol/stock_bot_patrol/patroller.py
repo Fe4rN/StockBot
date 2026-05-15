@@ -18,6 +18,9 @@ from nav2_msgs.action import FollowWaypoints
 from stock_bot_interfaces.srv import GoToPoint
 from geometry_msgs.msg import PoseStamped
 import sys
+import json
+import requests
+from std_msgs.msg import String
 
 class PatrollerNode(Node):
     """
@@ -59,6 +62,8 @@ class PatrollerNode(Node):
             self.client = ActionClient(self, FollowWaypoints, 'follow_waypoints', callback_group=self.group)
             self.srv = self.create_service(GoToPoint, 'control_patrulla', self.service_callback, callback_group=self.group)
             
+            self.notif_pub = self.create_publisher(String, '/notificaciones_robot', 10)
+
             # Temporizador que vigila el estado de la patrulla cada segundo
             self.timer = self.create_timer(1.0, self.patrol_manager, callback_group=self.group)
             
@@ -66,6 +71,39 @@ class PatrollerNode(Node):
         except Exception as e:
             self.get_logger().error(f"❌ Error crítico en inicialización: {str(e)}")
             sys.exit(1)
+
+    def enviar_notificacion(self, mensaje, nivel="info"):
+        """Envía notificaciones a la web (WebSockets) y a la Base de Datos (API REST)"""
+        
+        # 1. Enviar por ROS 2 (Tiempo Real para Websockets) - Esto no cambia
+        msg = String()
+        datos_ros = {"mensaje": mensaje, "nivel": nivel}
+        msg.data = json.dumps(datos_ros)
+        self.notif_pub.publish(msg)
+
+        # 2. Enviar a la API FastAPI (AQUÍ ESTÁ LA CORRECCIÓN)
+        try:
+            api_url = "http://127.0.0.1:8000/avisos/" 
+            
+            # Ajustamos el diccionario a lo que pide tu base de datos
+            datos_api = {
+                "Tipo": nivel,                 # info, error, success...
+                "Robot": "StockBot 4",         # El nombre de tu robot
+                "Almacen": "Principal",        # El almacén donde está trabajando
+                "Informacion": mensaje         # El texto de la notificación
+            }
+            
+            respuesta = requests.post(api_url, json=datos_api, timeout=2.0)
+            
+            # Añadimos .text al error para que si vuelve a fallar, nos diga el motivo exacto
+            if respuesta.status_code != 200:
+                self.get_logger().error(f"Fallo de la API: {respuesta.status_code} - {respuesta.text}")
+                
+        except requests.exceptions.RequestException as e:
+            self.get_logger().error(f"Error conectando con la base de datos: {e}")
+                
+        except requests.exceptions.RequestException as e:
+            self.get_logger().error(f"Error conectando con la base de datos: {e}")
 
     async def service_callback(self, request, response):
         """
@@ -82,6 +120,7 @@ class PatrollerNode(Node):
             if request.point_id == 1:
                 self.get_logger().info("Activando interruptor de patrulla...")
                 self.patrolling = True
+                self.enviar_notificacion("Modo Patrulla AUTOMÁTICA activado", "info")
                 response.success = True
                 response.message = "Patrulla activada. El robot empezará en breve."
                     
@@ -91,6 +130,7 @@ class PatrollerNode(Node):
                 if self.goal_handle:
                     await self.goal_handle.cancel_goal_async()
                     self.get_logger().info("Acción de Nav2 cancelada.")
+                self.enviar_notificacion("La patrulla ha sido detenida por el usuario", "warning")
                 response.success = True
                 response.message = "Patrulla desactivada y robot parado."
                 
@@ -110,14 +150,18 @@ class PatrollerNode(Node):
         try:
             if self.patrolling and not self.is_executing:
                 self.is_executing = True 
+                self.enviar_notificacion("Comenzando nueva ronda de patrullaje por los puntos", "info")
                 self.get_logger().info(">>> Iniciando nueva vuelta de patrulla...")
                 
                 success = await self.execute_nav2_patrol()
                 
                 if success:
-                    self.get_logger().info("Vuelta completada con éxito.")
+                    self.enviar_notificacion("Ronda de patrullaje completada sin incidentes", "success")
+                    self.get_logger().info("🏁 Vuelta completada con éxito.")
                 else:
-                    self.get_logger().warn("Vuelta interrumpida o fallida.")
+                    if self.patrolling:
+                        self.enviar_notificacion("Fallo durante la ronda de patrulla o ruta bloqueada", "error")
+                    self.get_logger().warn("⚠️ Vuelta interrumpida o fallida.")
                 
                 self.is_executing = False 
         except Exception as e:

@@ -32,39 +32,35 @@ function attempt_connection(robot_address) {
         url: data.rosbridge_address
     });
         
-    //  Callback de ÉXITO
+//  Callback de ÉXITO
     data.ros.on("connection", () => {
         data.connected = true;
         console.log("Conexion con ROSBridge correcta");
 
-        // --- PROTECCIÓN: Solo ejecutamos si el elemento existe ---
-        if (connection_box) { 
-            connection_box.style.backgroundColor = connectionColor; 
-        }
-        if (connection_button) { 
-            connection_button.textContent = disconnect_button; 
-        }
-        if (address_input) { 
-            address_input.disabled = true; 
-        }
-        if (control_panel) { 
-            control_panel.style.display = "block"; 
-        }
-        // ---------------------------------------------------------
+            // --- PROTECCIÓN ---
+            if (connection_box) connection_box.style.backgroundColor = connectionColor; 
+            if (connection_button) connection_button.textContent = disconnect_button; 
+            if (address_input) address_input.disabled = true; 
+            if (control_panel) control_panel.style.display = "block"; 
 
-        // 2. Activar la escucha de la cámara
-        subscribeToCameraResults();
+            // 1. Activar la escucha de la cámara
+            subscribeToCameraResults();
 
-        initSecuritySubscriber();
+            initSecuritySubscriber();
 
-        // 3. Activar el mapa
-        if (typeof initMapPoseSubscription === "function") {
-            initMapPoseSubscription();
-        }
+            // 2. Activar el mapa
+            if (typeof initMapPoseSubscription === "function") {
+                initMapPoseSubscription();
+            }
 
-        // 4. Activar el chat de IA
-        if (typeof initChatROS === "function") {
-            initChatROS(data.ros);
+
+            if (typeof initChatROS === "function") {
+                initChatROS(data.ros);
+    
+
+            if (typeof suscribirNotificaciones === "function") {
+                suscribirNotificaciones(data.ros);
+            }
         }
     });
 
@@ -408,7 +404,7 @@ function moveRobot(linearX, angularZ) {
     // CAMBIO IMPORTANTE: Puerto 9090 (no 9000)
     const default_robot_ip = "ws://127.0.0.1:9090"; 
     
-    console.warn("⚠️ MOCK: Intentando autoconexión a " + default_robot_ip);
+//    console.warn("⚠️ MOCK: Intentando autoconexión a " + default_robot_ip);
     
     window.addEventListener('load', () => {
         setTimeout(() => {
