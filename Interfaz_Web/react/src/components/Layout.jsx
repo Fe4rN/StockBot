@@ -4,15 +4,16 @@ import PanelHeader from '../PanelHeader';
 
 function Layout() {
     return (
-        <div className="app" style={{ display: 'flex', height: '100vh' }}>
+        <div style={{ display: 'flex', height: '100vh', width: '100vw', overflow: 'hidden', background: '#f4f7f9' }}>
             <Sidebar />
-            <main className="main" style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
+            {/* Usamos un contenedor único libre de colisiones de nombres CSS antiguos */}
+            <div style={{ flex: 1, display: 'flex', flexDirection: 'column', height: '100%', minWidth: 0 }}>
                 <PanelHeader />
-                <div className="content" style={{ padding: '20px', flex: 1, overflowY: 'auto' }}>
+                <main style={{ padding: '30px', flex: 1, overflowY: 'auto', boxSizing: 'border-box', width: '100%' }}>
                     {/* Aquí se inyectarán los diferentes dashboards */}
                     <Outlet /> 
-                </div>
-            </main>
+                </main>
+            </div>
         </div>
     );
 }

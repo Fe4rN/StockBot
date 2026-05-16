@@ -1,4 +1,4 @@
-import { createContext, useState, useContext } from 'react';
+import { createContext, useState, useContext, useEffect } from 'react';
 
 const RosContext = createContext();
 
@@ -11,8 +11,6 @@ export const RosProvider = ({ children }) => {
 
     const [scanStatus, setScanStatus] = useState("En espera");
     const [securityAlert, setSecurityAlert] = useState("Sistema Normal");
-    
-    // NUEVO: Estado global persistente para el modo del robot
     const [patrolMode, setPatrolMode] = useState("MANUAL"); 
 
     const connectRos = (ip) => {
@@ -47,6 +45,31 @@ export const RosProvider = ({ children }) => {
         setIsConnected(false);
         setRos(null);
     };
+
+    // ¡NUEVO! Escucha Global Ininterrumpida
+    useEffect(() => {
+        if (!ros || !isConnected) return;
+
+        // Búsqueda de Códigos de Barras
+        const resultSub = new ROSLIB.Topic({ ros: ros, name: '/resultado_busqueda', messageType: 'std_msgs/String' });
+        resultSub.subscribe((msg) => {
+            if (msg.data !== "No encontrado") {
+                setScanStatus(msg.data.toUpperCase());
+            }
+        });
+
+        // Detección de Intrusos
+        const intruderSub = new ROSLIB.Topic({ ros: ros, name: '/alertas_intrusion', messageType: 'std_msgs/String' });
+        intruderSub.subscribe((msg) => {
+            setSecurityAlert(`🚨 ${msg.data}`);
+            setTimeout(() => setSecurityAlert("Sistema Normal"), 5000);
+        });
+
+        return () => { 
+            resultSub.unsubscribe(); 
+            intruderSub.unsubscribe(); 
+        };
+    }, [ros, isConnected]);
 
     return (
         <RosContext.Provider value={{ 
