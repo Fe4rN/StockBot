@@ -1,6 +1,5 @@
 import { useEffect, useState } from 'react';
 import { useRos } from '../context/RosContext';
-import ROSLIB from 'roslib';
 
 function Notificaciones() {
     const { ros, isConnected } = useRos();

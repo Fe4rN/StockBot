@@ -1,7 +1,6 @@
 import { useState, useEffect } from 'react';
 import { NavLink } from 'react-router-dom';
 import { useRos } from '../context/RosContext';
-import ROSLIB from 'roslib';
 
 function Sidebar() {
     const { ros, isConnected } = useRos();

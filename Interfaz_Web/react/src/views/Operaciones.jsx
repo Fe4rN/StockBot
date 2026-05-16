@@ -1,24 +1,18 @@
 import { useEffect, useState } from 'react';
 import { useRos } from '../context/RosContext';
-import ROSLIB from 'roslib';
 
 function Operaciones() {
-    const { ros, isConnected } = useRos();
-    const [scanStatus, setScanStatus] = useState("En espera");
-    const [securityAlert, setSecurityAlert] = useState("Sistema Normal");
+    const { ros, isConnected, scanStatus, setScanStatus, securityAlert, setSecurityAlert, patrolMode, setPatrolMode } = useRos();
     const [isAlert, setIsAlert] = useState(false);
 
-    // Escuchar Intriones y Resultados de Búsqueda
     useEffect(() => {
         if (!ros || !isConnected) return;
 
-        // Búsqueda
         const resultSub = new ROSLIB.Topic({ ros: ros, name: '/resultado_busqueda', messageType: 'std_msgs/String' });
         resultSub.subscribe((msg) => {
             if (msg.data !== "No encontrado") setScanStatus(msg.data.toUpperCase());
         });
 
-        // Intrusión
         const intruderSub = new ROSLIB.Topic({ ros: ros, name: '/alertas_intrusion', messageType: 'std_msgs/String' });
         intruderSub.subscribe((msg) => {
             setSecurityAlert(`🚨 ${msg.data}`);
@@ -30,13 +24,17 @@ function Operaciones() {
         });
 
         return () => { resultSub.unsubscribe(); intruderSub.unsubscribe(); };
-    }, [ros, isConnected]);
+    }, [ros, isConnected, setScanStatus, setSecurityAlert]);
 
     const controlPatrol = (command) => {
         if (!ros || !isConnected) return alert("Conéctate primero");
         let patrolClient = new ROSLIB.Service({ ros: ros, name: '/control_patrulla', serviceType: 'stock_bot_interfaces/srv/GoToPoint' });
+        
         patrolClient.callService(new ROSLIB.ServiceRequest({ point_id: command }), (res) => {
-            console.log(res.message);
+            if (res.success) {
+                // Seteamos el estado global según el comando enviado (1 = PATRULLA, 0 = MANUAL)
+                setPatrolMode(command === 1 ? "PATRULLA" : "MANUAL");
+            }
         });
     };
 
@@ -51,6 +49,11 @@ function Operaciones() {
 
     return (
         <div style={{ maxWidth: '800px', margin: '0 auto' }}>
+            {/* NUEVO: Banner de estado de operación persistente */}
+            <div id="mode-banner" className="mode-banner" style={{ padding: '15px', backgroundColor: '#e2e8f0', textAlign: 'center', marginBottom: '20px', borderRadius: '8px', fontWeight: 'bold', color: '#0a2540' }}>
+                Modo de operación actual: {patrolMode}
+            </div>
+
             <div style={{ padding: '15px', backgroundColor: isAlert ? '#ff0000' : '#f0f0f0', color: isAlert ? 'white' : 'black', borderRadius: '8px', marginBottom: '20px', textAlign: 'center', fontWeight: 'bold' }}>
                 Estado de Seguridad: {securityAlert}
             </div>

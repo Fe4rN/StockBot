@@ -1,5 +1,4 @@
-import { createContext, useState, useContext, useEffect } from 'react';
-import ROSLIB from 'roslib';
+import { createContext, useState, useContext } from 'react';
 
 const RosContext = createContext();
 
@@ -9,6 +8,12 @@ export const RosProvider = ({ children }) => {
     const [ros, setRos] = useState(null);
     const [isConnected, setIsConnected] = useState(false);
     const [address, setAddress] = useState('127.0.0.1:9090');
+
+    const [scanStatus, setScanStatus] = useState("En espera");
+    const [securityAlert, setSecurityAlert] = useState("Sistema Normal");
+    
+    // NUEVO: Estado global persistente para el modo del robot
+    const [patrolMode, setPatrolMode] = useState("MANUAL"); 
 
     const connectRos = (ip) => {
         let final_address = ip;
@@ -44,7 +49,11 @@ export const RosProvider = ({ children }) => {
     };
 
     return (
-        <RosContext.Provider value={{ ros, isConnected, connectRos, disconnectRos, address, setAddress }}>
+        <RosContext.Provider value={{ 
+            ros, isConnected, connectRos, disconnectRos, address, setAddress,
+            scanStatus, setScanStatus, securityAlert, setSecurityAlert,
+            patrolMode, setPatrolMode
+        }}>
             {children}
         </RosContext.Provider>
     );

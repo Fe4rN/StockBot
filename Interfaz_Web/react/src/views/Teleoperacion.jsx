@@ -1,6 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
 import { useRos } from '../context/RosContext';
-import ROSLIB from 'roslib';
 import yaml from 'js-yaml';
 
 function Teleoperacion() {
@@ -10,7 +9,13 @@ function Teleoperacion() {
     const [robotPos, setRobotPos] = useState({ x: 0, y: 0 });
     const [statusText, setStatusText] = useState("Esperando órdenes...");
 
-    // Cargar Mapa (de map_web.js)
+    // SOLUCIÓN: Toggle booleano para desmontar y remontar el tag de la imagen sin alterar la URL
+    const [renderCam, setRenderCam] = useState(true);
+    const recargarCamara = () => {
+        setRenderCam(false);
+        setTimeout(() => setRenderCam(true), 50);
+    };
+
     useEffect(() => {
         fetch('/static/map.yaml')
             .then(res => res.text())
@@ -18,7 +23,6 @@ function Teleoperacion() {
             .catch(err => console.error("Error cargando YAML", err));
     }, []);
 
-    // Suscripción a la posición y dibujado (de map_web.js)
     useEffect(() => {
         if (!ros || !isConnected || !mapInfo || !canvasRef.current) return;
 
@@ -62,7 +66,6 @@ function Teleoperacion() {
         };
     }, [mapInfo, robotPos]);
 
-    // Controles de movimiento (de connection.js)
     const moveRobot = (linearX, angularZ) => {
         if (!ros || !isConnected) return alert("Conéctate primero");
         let cmdVelTopic = new ROSLIB.Topic({
@@ -96,9 +99,22 @@ function Teleoperacion() {
                         <h3>Mapa</h3>
                         <canvas ref={canvasRef} style={{ width: '100%', background: '#fff' }}></canvas>
                     </div>
-                    <div style={{ flex: 1, background: '#000', padding: '10px', color: 'white' }}>
-                        <h3>Cámara</h3>
-                        <img src={isConnected ? "http://localhost:8080/stream?topic=/camera/image_raw" : ""} alt="Feed" style={{ width: '100%', minHeight: '300px' }} />
+                    <div style={{ flex: 1, background: '#000', padding: '10px', color: 'white', display: 'flex', flexDirection: 'column' }}>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                            <h3>Cámara</h3>
+                            <button 
+                                onClick={recargarCamara} 
+                                style={{ background: '#333', color: 'white', border: '1px solid #555', borderRadius: '4px', padding: '2px 8px', cursor: 'pointer', fontSize: '0.8em' }}>
+                                🔄 Recargar
+                            </button>
+                        </div>
+                        {isConnected && renderCam ? (
+                            <img src="http://localhost:8080/stream?topic=/camera/image_raw" alt="Feed de StockBot" style={{ width: '100%', minHeight: '300px', objectFit: 'cover', marginTop: '10px' }} />
+                        ) : (
+                            <div style={{ width: '100%', minHeight: '300px', backgroundColor: '#333', display: 'flex', justifyContent: 'center', alignItems: 'center', color: '#aaa', borderRadius: '4px', marginTop: '10px' }}>
+                                Esperando conexión a la cámara...
+                            </div>
+                        )}
                     </div>
                 </div>
             </section>

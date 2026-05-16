@@ -28,9 +28,8 @@ uvicorn src.main:app --host 0.0.0.0 --port 8000 --reload &
 API_PID=$!
 
 # 4. Frontend Estático (Primer plano para ver logs)
-echo "[4/4] Lanzando Frontend Estático (Puerto 3000)..."
-echo "URL: http://localhost:3000"
-python3 -m http.server 3000 &
+echo "[4/4] Lanzando Frontend React (Vite)..."
+cd react && npm run dev &
 FRONTEND_PID=$!
 
 echo "--- Todos los sistemas operativos. Pulsa Ctrl+C para detenerlos. ---"
