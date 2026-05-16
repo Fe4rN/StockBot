@@ -62,10 +62,28 @@ class StockBotChat(Node):
             
             self.patrol_client = self.create_client(GoToPoint, '/control_patrulla')
             self.nav_client = self.create_client(GoToPoint, '/ir_a_estanteria')
+
+            self.estado_fisico = {
+                "ultimo_producto_visto": "Ninguno",
+                "estado_seguridad": "Normal",
+                "posicion_x": 0.0,
+                "posicion_y": 0.0
+            }
+
+            # Suscripciones extra a los "sentidos" del robot
+            self.create_subscription(String, '/resultado_busqueda', self.callback_vision, 10)
+            self.create_subscription(String, '/alertas_intrusion', self.callback_seguridad, 10)
             
             self.get_logger().info('✅ StockBot operativo y listo para el turno.')
         except Exception as e:
             self.get_logger().error(f'❌ Error en la carga del chatbot: {str(e)}')
+
+    def callback_vision(self, msg):
+        if msg.data != "No encontrado":
+            self.estado_fisico["ultimo_producto_visto"] = msg.data
+
+    def callback_seguridad(self, msg):
+        self.estado_fisico["estado_seguridad"] = msg.data
 
     def listener_callback(self, msg):
         """
@@ -83,8 +101,16 @@ class StockBotChat(Node):
         contexto_chat = "".join([f"{h['role']}: {h['content']}\n" for h in self.history])
         estado_actual = f"Esperando confirmación para: {self.pending_action}" if self.pending_action else "Libre"
 
+        estado_en_tiempo_real = (
+            f"--- TELEMETRÍA DEL ROBOT ---\n"
+            f"Último producto escaneado: {self.estado_fisico['ultimo_producto_visto']}\n"
+            f"Estado de seguridad: {self.estado_fisico['estado_seguridad']}\n"
+            f"----------------------------\n"
+        )
+
         prompt_unico = f"""<|im_start|>system
 {self.identidad_stockbot}
+{estado_en_tiempo_real}
 Conversación:
 {contexto_chat}
 Estado: {estado_actual}
@@ -137,7 +163,15 @@ ANÁLISIS: """
           texto (str): Entrada original del usuario.
         """
         contexto = "".join([f"<|im_start|>{h['role']}\n{h['content']}<|im_end|>\n" for h in self.history])
-        prompt = (f"<|im_start|>system\n{self.identidad_stockbot}\n{contexto}"
+        
+        estado_en_tiempo_real = (
+            f"--- TELEMETRÍA DEL ROBOT ---\n"
+            f"Último producto escaneado: {self.estado_fisico['ultimo_producto_visto']}\n"
+            f"Estado de seguridad: {self.estado_fisico['estado_seguridad']}\n"
+            f"----------------------------\n"
+        )
+
+        prompt = (f"<|im_start|>system\n{self.identidad_stockbot}\n{estado_en_tiempo_real}\n{contexto}"
                   f"<|im_start|>user\n{texto}<|im_end|>\n<|im_start|>assistant\n")
         
         output = self.llm(prompt, max_tokens=256, stop=["<|im_end|>"], echo=False)

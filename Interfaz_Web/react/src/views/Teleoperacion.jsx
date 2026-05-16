@@ -3,26 +3,24 @@ import { useRos } from '../context/RosContext';
 import yaml from 'js-yaml';
 
 function Teleoperacion() {
-    // 1. IMPORTANTE: Traemos también setPatrolMode para quitar el letrero de patrulla si le damos una orden directa
-    const { ros, isConnected, patrolMode, setPatrolMode } = useRos();
+    // CORREGIDO: Importamos statusText y setStatusText del contexto global
+    const { ros, isConnected, patrolMode, statusText, setStatusText } = useRos();
     
     const canvasRef = useRef(null);
     const [mapInfo, setMapInfo] = useState(null);
     const [robotPos, setRobotPos] = useState({ x: 0, y: 0 });
-    const [statusText, setStatusText] = useState("Esperando órdenes...");
     const [renderCam, setRenderCam] = useState(true);
 
-    // Estados para el nuevo buscador inteligente
     const [puntoSeleccionado, setPuntoSeleccionado] = useState('1');
     const [busqueda, setBusqueda] = useState('');
     const [desplegableAbierto, setDesplegableAbierto] = useState(false);
 
-    // Simulación de base de datos de puntos
+    const isDrivingRef = useRef(false);
+
     const puntosAlmacen = [
         { id: '1', nombre: 'Estantería 1' },
         { id: '2', nombre: 'Zona de Cajas 1' },
-        { id: '3', nombre: 'Ejemplo 3 (no funciona)' },
-
+        { id: '3', nombre: 'Ejemplo 3 (no hace nada)' },
     ];
 
     const puntosFiltrados = puntosAlmacen.filter(p => p.nombre.toLowerCase().includes(busqueda.toLowerCase()));
@@ -73,11 +71,17 @@ function Teleoperacion() {
         };
     }, [mapInfo, robotPos]);
 
+    const forzarParadaPatrulla = () => {
+        if (patrolMode === 'PATRULLA') {
+            let patrolClient = new ROSLIB.Service({ ros: ros, name: '/control_patrulla', serviceType: 'stock_bot_interfaces/srv/GoToPoint' });
+            patrolClient.callService(new ROSLIB.ServiceRequest({ point_id: 0 }), () => {});
+        }
+    };
+
     const moveRobot = (linearX, angularZ) => {
         if (!ros || !isConnected) return;
         
-        // Si lo movemos a mano, quitamos el cartel de patrulla
-        if (setPatrolMode && patrolMode !== 'MANUAL') setPatrolMode('MANUAL');
+        forzarParadaPatrulla();
         
         let cmdVelTopic = new ROSLIB.Topic({ ros: ros, name: '/cmd_vel', messageType: 'geometry_msgs/msg/TwistStamped' });
         let twist = new ROSLIB.Message({
@@ -88,20 +92,28 @@ function Teleoperacion() {
         setStatusText(linearX === 0 && angularZ === 0 ? "🛑 Robot parado en seco." : "Controlando manualmente...");
     };
 
+    const startMoving = (linearX, angularZ) => {
+        isDrivingRef.current = true;
+        moveRobot(linearX, angularZ);
+    };
+
+    const stopMoving = () => {
+        if (isDrivingRef.current) {
+            moveRobot(0, 0);
+            isDrivingRef.current = false;
+        }
+    };
+
     const sendRobot = (pointId) => {
         if (!ros || !isConnected) return;
         
-        // 2. IMPORTANTE: Buscamos el nombre bonito del destino en nuestra lista
+        forzarParadaPatrulla();
+        
         const destinoObj = puntosAlmacen.find(p => parseInt(p.id) === pointId);
         const nombreDestino = destinoObj ? destinoObj.nombre : `Punto ${pointId}`;
-
-        // Al enviar una orden, salimos del modo patrulla visualmente
-        if (setPatrolMode) setPatrolMode('MANUAL');
         
         let navClient = new ROSLIB.Service({ ros: ros, name: '/ir_a_estanteria', serviceType: 'stock_bot_interfaces/srv/GoToPoint' });
-        
-        // Actualizamos el texto con el nombre real
-        setStatusText(`🚀 Viajando a destino: ${nombreDestino}...`);
+        setStatusText(`Viajando a destino: ${nombreDestino}...`);
         
         navClient.callService(new ROSLIB.ServiceRequest({ point_id: pointId }), (result) => {
             setStatusText(result.success ? `✅ ¡Llegó a: ${nombreDestino}!` : `❌ Error viajando a ${nombreDestino}: ` + result.message);
@@ -130,7 +142,7 @@ function Teleoperacion() {
                         color: patrolMode === 'PATRULLA' ? '#a3ffb4' : 'white',
                         border: patrolMode === 'PATRULLA' ? '1px solid rgba(40, 167, 69, 0.5)' : 'none'
                     }}>
-                        {patrolMode === 'PATRULLA' ? 'Modo patrulla activado' : statusText}
+                        {patrolMode === 'PATRULLA' ? 'Modo patrulla activo' : statusText}
                     </span>
                 </div>
 
@@ -165,13 +177,13 @@ function Teleoperacion() {
                     <h3 style={{ margin: '0 0 25px 0', color: '#2c3e50', textAlign: 'center', fontSize: '1.1em' }}>Control Manual</h3>
                     <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '12px', maxWidth: '240px', margin: '0 auto' }}>
                         <div />
-                        <button onMouseDown={() => moveRobot(0.2, 0)} onMouseUp={() => moveRobot(0,0)} onMouseLeave={() => moveRobot(0,0)} style={dpadBtnStyle}>⬆️</button>
+                        <button onMouseDown={() => startMoving(0.2, 0)} onMouseUp={stopMoving} onMouseLeave={stopMoving} style={dpadBtnStyle}>⬆️</button>
                         <div />
-                        <button onMouseDown={() => moveRobot(0, 0.5)} onMouseUp={() => moveRobot(0,0)} onMouseLeave={() => moveRobot(0,0)} style={dpadBtnStyle}>⬅️</button>
-                        <button onClick={() => moveRobot(0, 0)} style={{...dpadBtnStyle, background: '#dc3545', color: 'white', border: 'none', boxShadow: '0 4px 10px rgba(220,53,69,0.3)'}}>🛑</button>
-                        <button onMouseDown={() => moveRobot(0, -0.5)} onMouseUp={() => moveRobot(0,0)} onMouseLeave={() => moveRobot(0,0)} style={dpadBtnStyle}>➡️</button>
+                        <button onMouseDown={() => startMoving(0, 0.5)} onMouseUp={stopMoving} onMouseLeave={stopMoving} style={dpadBtnStyle}>⬅️</button>
+                        <button onClick={() => { isDrivingRef.current = false; moveRobot(0, 0); }} style={{...dpadBtnStyle, background: '#dc3545', color: 'white', border: 'none', boxShadow: '0 4px 10px rgba(220,53,69,0.3)'}}>🛑</button>
+                        <button onMouseDown={() => startMoving(0, -0.5)} onMouseUp={stopMoving} onMouseLeave={stopMoving} style={dpadBtnStyle}>➡️</button>
                         <div />
-                        <button onMouseDown={() => moveRobot(-0.2, 0)} onMouseUp={() => moveRobot(0,0)} onMouseLeave={() => moveRobot(0,0)} style={dpadBtnStyle}>⬇️</button>
+                        <button onMouseDown={() => startMoving(-0.2, 0)} onMouseUp={stopMoving} onMouseLeave={stopMoving} style={dpadBtnStyle}>⬇️</button>
                         <div />
                     </div>
                     <p style={{ textAlign: 'center', margin: '20px 0 0 0', fontSize: '0.8em', color: '#888' }}>Mantén pulsado para dirigir al robot</p>

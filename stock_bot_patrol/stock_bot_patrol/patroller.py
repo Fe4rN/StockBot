@@ -64,6 +64,8 @@ class PatrollerNode(Node):
             
             self.notif_pub = self.create_publisher(String, '/notificaciones_robot', 10)
 
+            self.estado_pub = self.create_publisher(String, '/estado_patrulla', 10)
+
             # Temporizador que vigila el estado de la patrulla cada segundo
             self.timer = self.create_timer(1.0, self.patrol_manager, callback_group=self.group)
             
@@ -87,10 +89,10 @@ class PatrollerNode(Node):
             
             # Ajustamos el diccionario a lo que pide tu base de datos
             datos_api = {
-                "Tipo": nivel,                 # info, error, success...
-                "Robot": "StockBot 4",         # El nombre de tu robot
-                "Almacen": "Principal",        # El almacén donde está trabajando
-                "Informacion": mensaje         # El texto de la notificación
+                "Tipo": nivel,                 
+                "Robot": 5,           
+                "Almacen": 1,         
+                "Informacion": mensaje  
             }
             
             respuesta = requests.post(api_url, json=datos_api, timeout=2.0)
@@ -143,11 +145,15 @@ class PatrollerNode(Node):
 
     async def patrol_manager(self):
         """
-        Gestiona el ciclo de patrulla sin saturar el servidor de acciones.
-
-        Se asegura de que solo se envíe una vuelta a la vez a Nav2.
+        Gestiona el ciclo de patrulla y transmite el estado real a la web.
         """
         try:
+            # 1. LATIDO DE ESTADO: Avisamos a la web de qué estamos haciendo realmente
+            msg_estado = String()
+            msg_estado.data = "PATRULLA" if self.patrolling else "MANUAL"
+            self.estado_pub.publish(msg_estado)
+
+            # 2. Lógica de ejecución
             if self.patrolling and not self.is_executing:
                 self.is_executing = True 
                 self.enviar_notificacion("Comenzando nueva ronda de patrullaje por los puntos", "info")
@@ -157,11 +163,9 @@ class PatrollerNode(Node):
                 
                 if success:
                     self.enviar_notificacion("Ronda de patrullaje completada sin incidentes", "success")
-                    self.get_logger().info("🏁 Vuelta completada con éxito.")
                 else:
                     if self.patrolling:
                         self.enviar_notificacion("Fallo durante la ronda de patrulla o ruta bloqueada", "error")
-                    self.get_logger().warn("⚠️ Vuelta interrumpida o fallida.")
                 
                 self.is_executing = False 
         except Exception as e:

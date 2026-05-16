@@ -86,8 +86,8 @@ class SimpleNavigator(Node):
             # Ajustamos el diccionario a lo que pide tu base de datos
             datos_api = {
                 "Tipo": nivel,                 # info, error, success...
-                "Robot": "StockBot 4",         # El nombre de tu robot
-                "Almacen": "Principal",        # El almacén donde está trabajando
+                "Robot": 5,                    # ID numérico entero del robot
+                "Almacen": 1,                  # ID numérico entero del almacén
                 "Informacion": mensaje         # El texto de la notificación
             }
             

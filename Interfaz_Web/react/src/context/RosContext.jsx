@@ -12,6 +12,9 @@ export const RosProvider = ({ children }) => {
     const [scanStatus, setScanStatus] = useState("En espera");
     const [securityAlert, setSecurityAlert] = useState("Sistema Normal");
     const [patrolMode, setPatrolMode] = useState("MANUAL"); 
+    
+    // NUEVO: El estado del texto de navegación ahora es global
+    const [statusText, setStatusText] = useState("Esperando órdenes...");
 
     const connectRos = (ip) => {
         let final_address = ip;
@@ -46,16 +49,14 @@ export const RosProvider = ({ children }) => {
         setRos(null);
     };
 
-    // ¡NUEVO! Escucha Global Ininterrumpida
+    // Escucha Global Ininterrumpida
     useEffect(() => {
         if (!ros || !isConnected) return;
 
         // Búsqueda de Códigos de Barras
         const resultSub = new ROSLIB.Topic({ ros: ros, name: '/resultado_busqueda', messageType: 'std_msgs/String' });
         resultSub.subscribe((msg) => {
-            if (msg.data !== "No encontrado") {
-                setScanStatus(msg.data.toUpperCase());
-            }
+            if (msg.data !== "No encontrado") setScanStatus(msg.data.toUpperCase());
         });
 
         // Detección de Intrusos
@@ -65,9 +66,16 @@ export const RosProvider = ({ children }) => {
             setTimeout(() => setSecurityAlert("Sistema Normal"), 5000);
         });
 
+        // Escuchar el estado real del robot
+        const estadoSub = new ROSLIB.Topic({ ros: ros, name: '/estado_patrulla', messageType: 'std_msgs/String' });
+        estadoSub.subscribe((msg) => {
+            setPatrolMode(msg.data);
+        });
+
         return () => { 
             resultSub.unsubscribe(); 
             intruderSub.unsubscribe(); 
+            estadoSub.unsubscribe();
         };
     }, [ros, isConnected]);
 
@@ -75,7 +83,7 @@ export const RosProvider = ({ children }) => {
         <RosContext.Provider value={{ 
             ros, isConnected, connectRos, disconnectRos, address, setAddress,
             scanStatus, setScanStatus, securityAlert, setSecurityAlert,
-            patrolMode, setPatrolMode
+            patrolMode, setPatrolMode, statusText, setStatusText
         }}>
             {children}
         </RosContext.Provider>
