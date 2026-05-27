@@ -4,7 +4,7 @@ import yaml from 'js-yaml';
 
 function Teleoperacion() {
     // CORREGIDO: Importamos statusText y setStatusText del contexto global
-    const { ros, isConnected, patrolMode, statusText, setStatusText } = useRos();
+    const { ros, isConnected, patrolMode, statusText, setStatusText, darkMode } = useRos();
     
     const canvasRef = useRef(null);
     const [mapInfo, setMapInfo] = useState(null);
@@ -120,7 +120,21 @@ function Teleoperacion() {
         });
     };
 
-    const dpadBtnStyle = { background: '#f8f9fa', border: '1px solid #dee2e6', borderRadius: '12px', padding: '15px', cursor: 'pointer', fontSize: '1.5em', transition: 'all 0.1s', display: 'flex', justifyContent: 'center', alignItems: 'center', height: '65px', boxShadow: '0 2px 5px rgba(0,0,0,0.05)' };
+    const dpadBtnStyle = { 
+        background: darkMode ? '#152238' : '#f8f9fa', 
+        border: darkMode ? '1px solid rgba(255,255,255,0.1)' : '1px solid #dee2e6', 
+        color: darkMode ? '#e2e8f0' : '#2c3e50',
+        borderRadius: '12px', 
+        padding: '15px', 
+        cursor: 'pointer', 
+        fontSize: '1.5em', 
+        transition: 'all 0.1s', 
+        display: 'flex', 
+        justifyContent: 'center', 
+        alignItems: 'center', 
+        height: '65px', 
+        boxShadow: '0 2px 5px rgba(0,0,0,0.05)' 
+    };
 
     return (
         <div style={{ display: 'flex', gap: '30px', width: '100%', boxSizing: 'border-box' }}>
@@ -147,17 +161,37 @@ function Teleoperacion() {
                 </div>
 
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '25px' }}>
-                    <div style={{ background: 'white', padding: '20px', borderRadius: '16px', boxShadow: '0 4px 20px rgba(0,0,0,0.05)', border: '1px solid #f0f0f0', display: 'flex', flexDirection: 'column', height: '480px' }}>
-                        <h3 style={{ margin: '0 0 15px 0', color: '#2c3e50', fontSize: '1.1em', borderBottom: '2px solid #f4f7f6', paddingBottom: '10px' }}>🗺️ Mapa del Almacén</h3>
-                        <div style={{ borderRadius: '12px', overflow: 'hidden', border: '1px solid #eee', flex: 1, display: 'flex', background: '#f8f9fa' }}>
+                    <div style={{ 
+                        background: darkMode ? '#0d1527' : 'white', 
+                        padding: '20px', 
+                        borderRadius: '16px', 
+                        boxShadow: '0 4px 20px rgba(0,0,0,0.05)', 
+                        border: darkMode ? '1px solid rgba(255,255,255,0.08)' : '1px solid #f0f0f0', 
+                        display: 'flex', 
+                        flexDirection: 'column', 
+                        height: '480px',
+                        transition: 'background 0.3s, border-color 0.3s'
+                    }}>
+                        <h3 style={{ margin: '0 0 15px 0', color: darkMode ? '#fff' : '#2c3e50', fontSize: '1.1em', borderBottom: darkMode ? '2px solid #1a243d' : '2px solid #f4f7f6', paddingBottom: '10px' }}>🗺️ Mapa del Almacén</h3>
+                        <div style={{ borderRadius: '12px', overflow: 'hidden', border: darkMode ? '1px solid #1a243d' : '1px solid #eee', flex: 1, display: 'flex', background: darkMode ? '#121b2d' : '#f8f9fa' }}>
                             <canvas ref={canvasRef} style={{ width: '100%', height: '100%', objectFit: 'contain' }}></canvas>
                         </div>
                     </div>
 
-                    <div style={{ background: 'white', padding: '20px', borderRadius: '16px', boxShadow: '0 4px 20px rgba(0,0,0,0.05)', border: '1px solid #f0f0f0', display: 'flex', flexDirection: 'column', height: '480px' }}>
-                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', margin: '0 0 15px 0', borderBottom: '2px solid #f4f7f6', paddingBottom: '10px' }}>
-                            <h3 style={{ margin: 0, color: '#2c3e50', fontSize: '1.1em' }}>📷 Cámara Frontal</h3>
-                            <button onClick={recargarCamara} style={{ background: '#f0f4f8', color: '#2c3e50', border: '1px solid #dce1e6', borderRadius: '6px', padding: '6px 12px', cursor: 'pointer', fontSize: '0.85em', fontWeight: 'bold', display: 'flex', alignItems: 'center', gap: '5px' }}>
+                    <div style={{ 
+                        background: darkMode ? '#0d1527' : 'white', 
+                        padding: '20px', 
+                        borderRadius: '16px', 
+                        boxShadow: '0 4px 20px rgba(0,0,0,0.05)', 
+                        border: darkMode ? '1px solid rgba(255,255,255,0.08)' : '1px solid #f0f0f0', 
+                        display: 'flex', 
+                        flexDirection: 'column', 
+                        height: '480px',
+                        transition: 'background 0.3s, border-color 0.3s'
+                    }}>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', margin: '0 0 15px 0', borderBottom: darkMode ? '2px solid #1a243d' : '2px solid #f4f7f6', paddingBottom: '10px' }}>
+                            <h3 style={{ margin: 0, color: darkMode ? '#fff' : '#2c3e50', fontSize: '1.1em' }}>📷 Cámara Frontal</h3>
+                            <button onClick={recargarCamara} style={{ background: darkMode ? '#152238' : '#f0f4f8', color: darkMode ? '#fff' : '#2c3e50', border: darkMode ? '1px solid rgba(255,255,255,0.1)' : '1px solid #dce1e6', borderRadius: '6px', padding: '6px 12px', cursor: 'pointer', fontSize: '0.85em', fontWeight: 'bold', display: 'flex', alignItems: 'center', gap: '5px' }}>
                                 Refrescar
                             </button>
                         </div>
@@ -173,8 +207,15 @@ function Teleoperacion() {
             </section>
 
             <section style={{ flex: '0 0 35%', display: 'flex', flexDirection: 'column', gap: '25px' }}>
-                <div style={{ background: 'white', padding: '25px', borderRadius: '16px', boxShadow: '0 4px 20px rgba(0,0,0,0.05)', border: '1px solid #f0f0f0' }}>
-                    <h3 style={{ margin: '0 0 25px 0', color: '#2c3e50', textAlign: 'center', fontSize: '1.1em' }}>Control Manual</h3>
+                <div style={{ 
+                    background: darkMode ? '#0d1527' : 'white', 
+                    padding: '25px', 
+                    borderRadius: '16px', 
+                    boxShadow: '0 4px 20px rgba(0,0,0,0.05)', 
+                    border: darkMode ? '1px solid rgba(255,255,255,0.08)' : '1px solid #f0f0f0',
+                    transition: 'background 0.3s, border-color 0.3s'
+                }}>
+                    <h3 style={{ margin: '0 0 25px 0', color: darkMode ? '#fff' : '#2c3e50', textAlign: 'center', fontSize: '1.1em' }}>Control Manual</h3>
                     <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '12px', maxWidth: '240px', margin: '0 auto' }}>
                         <div />
                         <button onMouseDown={() => startMoving(0.2, 0)} onMouseUp={stopMoving} onMouseLeave={stopMoving} style={dpadBtnStyle}>⬆️</button>
@@ -189,10 +230,17 @@ function Teleoperacion() {
                     <p style={{ textAlign: 'center', margin: '20px 0 0 0', fontSize: '0.8em', color: '#888' }}>Mantén pulsado para dirigir al robot</p>
                 </div>
 
-                <div style={{ background: 'white', padding: '25px', borderRadius: '16px', boxShadow: '0 4px 20px rgba(0,0,0,0.05)', border: '1px solid #f0f0f0' }}>
-                    <h3 style={{ margin: '0 0 20px 0', color: '#2c3e50', fontSize: '1.1em' }}>Navegación Autónoma</h3>
+                <div style={{ 
+                    background: darkMode ? '#0d1527' : 'white', 
+                    padding: '25px', 
+                    borderRadius: '16px', 
+                    boxShadow: '0 4px 20px rgba(0,0,0,0.05)', 
+                    border: darkMode ? '1px solid rgba(255,255,255,0.08)' : '1px solid #f0f0f0',
+                    transition: 'background 0.3s, border-color 0.3s'
+                }}>
+                    <h3 style={{ margin: '0 0 20px 0', color: darkMode ? '#fff' : '#2c3e50', fontSize: '1.1em' }}>Navegación Autónoma</h3>
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
-                        <label style={{ fontSize: '0.85em', color: '#666', fontWeight: 'bold' }}>Buscar destino objetivo:</label>
+                        <label style={{ fontSize: '0.85em', color: darkMode ? '#a0aec0' : '#666', fontWeight: 'bold' }}>Buscar destino objetivo:</label>
                         
                         <div style={{ position: 'relative', width: '100%' }}>
                             <input 
@@ -202,18 +250,48 @@ function Teleoperacion() {
                                 onFocus={() => { setDesplegableAbierto(true); setBusqueda(''); }}
                                 onChange={(e) => setBusqueda(e.target.value)}
                                 onBlur={() => setTimeout(() => setDesplegableAbierto(false), 200)}
-                                style={{ width: '100%', padding: '12px 15px', borderRadius: '10px', border: '1px solid #dce1e6', background: '#f8f9fa', color: '#0a2540', fontWeight: 'bold', fontSize: '0.9em', outline: 'none', boxSizing: 'border-box' }}
+                                style={{ 
+                                    width: '100%', 
+                                    padding: '12px 15px', 
+                                    borderRadius: '10px', 
+                                    border: darkMode ? '1px solid rgba(255,255,255,0.15)' : '1px solid #dce1e6', 
+                                    background: darkMode ? '#152238' : '#f8f9fa', 
+                                    color: darkMode ? 'white' : '#0a2540', 
+                                    fontWeight: 'bold', 
+                                    fontSize: '0.9em', 
+                                    outline: 'none', 
+                                    boxSizing: 'border-box' 
+                                }}
                             />
                             
                             {desplegableAbierto && (
-                                <div style={{ position: 'absolute', top: '100%', left: 0, right: 0, background: 'white', border: '1px solid #eee', borderRadius: '8px', marginTop: '5px', maxHeight: '180px', overflowY: 'auto', boxShadow: '0 4px 15px rgba(0,0,0,0.1)', zIndex: 10 }}>
+                                <div style={{ 
+                                    position: 'absolute', 
+                                    top: '100%', 
+                                    left: 0, 
+                                    right: 0, 
+                                    background: darkMode ? '#0d1527' : 'white', 
+                                    border: darkMode ? '1px solid rgba(255,255,255,0.15)' : '1px solid #eee', 
+                                    borderRadius: '8px', 
+                                    marginTop: '5px', 
+                                    maxHeight: '180px', 
+                                    overflowY: 'auto', 
+                                    boxShadow: '0 4px 15px rgba(0,0,0,0.2)', 
+                                    zIndex: 10 
+                                }}>
                                     {puntosFiltrados.length > 0 ? puntosFiltrados.map(p => (
                                         <div 
                                             key={p.id} 
                                             onClick={() => { setPuntoSeleccionado(p.id); setDesplegableAbierto(false); }}
-                                            style={{ padding: '12px 15px', cursor: 'pointer', borderBottom: '1px solid #f8f9fa', color: '#333', fontSize: '0.9em' }}
-                                            onMouseEnter={(e) => e.target.style.background = '#f0f4f8'}
-                                            onMouseLeave={(e) => e.target.style.background = 'white'}
+                                            style={{ 
+                                                padding: '12px 15px', 
+                                                cursor: 'pointer', 
+                                                borderBottom: darkMode ? '1px solid rgba(255,255,255,0.05)' : '1px solid #f8f9fa', 
+                                                color: darkMode ? '#e2e8f0' : '#333', 
+                                                fontSize: '0.9em' 
+                                            }}
+                                            onMouseEnter={(e) => e.target.style.background = darkMode ? '#152238' : '#f0f4f8'}
+                                            onMouseLeave={(e) => e.target.style.background = darkMode ? '#0d1527' : 'white'}
                                         >
                                             {p.nombre}
                                         </div>

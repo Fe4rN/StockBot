@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { useRos } from '../context/RosContext';
 
 function Notificaciones() {
-    const { ros, isConnected } = useRos();
+    const { ros, isConnected, darkMode } = useRos();
     const [notifs, setNotifs] = useState([]);
 
     // 1. Cargar historial desde la API al montar el componente
@@ -37,22 +37,32 @@ function Notificaciones() {
     }, [ros, isConnected]);
 
     return (
-        <div style={{ maxWidth: '1000px', margin: '0 auto', background: 'white', padding: '25px', borderRadius: '8px' }}>
-            <h3 style={{ borderBottom: '2px solid #eee', paddingBottom: '15px' }}>REGISTRO DE NOTIFICACIONES</h3>
+        <div style={{ 
+            maxWidth: '1000px', 
+            margin: '0 auto', 
+            background: darkMode ? '#0d1527' : 'white', 
+            padding: '25px', 
+            borderRadius: '16px',
+            border: darkMode ? '1px solid rgba(255,255,255,0.08)' : '1px solid #f0f0f0',
+            boxShadow: '0 4px 20px rgba(0,0,0,0.05)',
+            color: darkMode ? '#fff' : '#2c3e50',
+            transition: 'all 0.3s'
+        }}>
+            <h3 style={{ borderBottom: darkMode ? '2px solid #1a243d' : '2px solid #eee', paddingBottom: '15px', color: darkMode ? '#fff' : '#2c3e50' }}>REGISTRO DE NOTIFICACIONES</h3>
             <div style={{ maxHeight: '600px', overflowY: 'auto' }}>
                 <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left' }}>
                     <thead>
-                        <tr style={{ backgroundColor: '#f8f9fa' }}>
-                            <th style={{ padding: '15px' }}>Hora</th>
-                            <th style={{ padding: '15px' }}>Motivo</th>
-                            <th style={{ padding: '15px' }}>Nivel</th>
+                        <tr style={{ backgroundColor: darkMode ? '#152238' : '#f8f9fa' }}>
+                            <th style={{ padding: '15px', color: darkMode ? '#fff' : '#333' }}>Hora</th>
+                            <th style={{ padding: '15px', color: darkMode ? '#fff' : '#333' }}>Motivo</th>
+                            <th style={{ padding: '15px', color: darkMode ? '#fff' : '#333' }}>Nivel</th>
                         </tr>
                     </thead>
                     <tbody>
                         {notifs.map((n) => (
-                            <tr key={n.id} style={{ borderBottom: '1px solid #eee' }}>
-                                <td style={{ padding: '15px' }}>{n.hora}</td>
-                                <td style={{ padding: '15px' }}>{n.motivo}</td>
+                            <tr key={n.id} style={{ borderBottom: darkMode ? '1px solid rgba(255,255,255,0.05)' : '1px solid #eee' }}>
+                                <td style={{ padding: '15px', color: darkMode ? '#e2e8f0' : '#333' }}>{n.hora}</td>
+                                <td style={{ padding: '15px', color: darkMode ? '#e2e8f0' : '#333' }}>{n.motivo}</td>
                                 <td style={{ padding: '15px', fontWeight: 'bold', color: n.nivel === 'error' ? 'red' : n.nivel === 'warning' ? 'orange' : 'blue' }}>
                                     {n.nivel.toUpperCase()}
                                 </td>

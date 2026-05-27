@@ -1,5 +1,6 @@
-import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import Layout from './components/Layout';
+import Home from './views/Home';
 import Teleoperacion from './views/Teleoperacion';
 import Operaciones from './views/Operaciones';
 import Notificaciones from './views/Notificaciones';
@@ -10,8 +11,11 @@ function App() {
     <RosProvider>
       <Router>
         <Routes>
-          <Route path="/" element={<Layout />}>
-            <Route index element={<Navigate to="/teleoperacion" replace />} />
+          {/* Landing page (sin sidebar) */}
+          <Route path="/" element={<Home />} />
+
+          {/* Panel con Layout (con barra lateral) */}
+          <Route element={<Layout />}>
             <Route path="teleoperacion" element={<Teleoperacion />} />
             <Route path="operaciones" element={<Operaciones />} />
             <Route path="notificaciones" element={<Notificaciones />} />

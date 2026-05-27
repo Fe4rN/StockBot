@@ -2,7 +2,7 @@ import { useRos } from '../context/RosContext';
 
 function Operaciones() {
     // Ya no necesitamos useEffects aquí, todo viene del cerebro global
-    const { ros, isConnected, scanStatus, setScanStatus, securityAlert, patrolMode, setPatrolMode } = useRos();
+    const { ros, isConnected, scanStatus, setScanStatus, securityAlert, patrolMode, setPatrolMode, darkMode } = useRos();
     
     // Comprobamos si hay una alerta activa para cambiar colores
     const isAlert = securityAlert !== "Sistema Normal";
@@ -45,9 +45,21 @@ function Operaciones() {
                     {patrolMode === 'PATRULLA' && <span style={{ fontSize: '2em' }}>🔄</span>}
                 </div>
 
-                <div style={{ flex: 1, background: isAlert ? 'linear-gradient(90deg, #dc3545 0%, #c82333 100%)' : 'white', padding: '20px', borderRadius: '16px', color: isAlert ? 'white' : '#2c3e50', border: isAlert ? 'none' : '1px solid #f0f0f0', display: 'flex', alignItems: 'center', justifyContent: 'space-between', boxShadow: '0 4px 15px rgba(0,0,0,0.05)', transition: 'all 0.3s' }}>
+                <div style={{ 
+                    flex: 1, 
+                    background: isAlert ? 'linear-gradient(90deg, #dc3545 0%, #c82333 100%)' : (darkMode ? '#0d1527' : 'white'), 
+                    padding: '20px', 
+                    borderRadius: '16px', 
+                    color: isAlert ? 'white' : (darkMode ? '#fff' : '#2c3e50'), 
+                    border: isAlert ? 'none' : (darkMode ? '1px solid rgba(255,255,255,0.08)' : '1px solid #f0f0f0'), 
+                    display: 'flex', 
+                    alignItems: 'center', 
+                    justifyContent: 'space-between', 
+                    boxShadow: '0 4px 15px rgba(0,0,0,0.05)', 
+                    transition: 'all 0.3s' 
+                }}>
                     <div style={{ display: 'flex', flexDirection: 'column' }}>
-                        <span style={{ fontSize: '0.85em', color: isAlert ? '#ffcccc' : '#888', textTransform: 'uppercase', letterSpacing: '1px' }}>Vigilancia por Visión Artificial</span>
+                        <span style={{ fontSize: '0.85em', color: isAlert ? '#ffcccc' : (darkMode ? '#a0aec0' : '#888'), textTransform: 'uppercase', letterSpacing: '1px' }}>Vigilancia por Visión Artificial</span>
                         <span style={{ fontSize: '1.4em', fontWeight: 'bold' }}>{securityAlert}</span>
                     </div>
                     <span style={{ fontSize: '2em' }}>{isAlert ? '🚨' : '🛡️'}</span>
@@ -58,9 +70,18 @@ function Operaciones() {
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '25px' }}>
                 
                 {/* Panel de Patrulla */}
-                <div style={{ background: 'white', padding: '30px', borderRadius: '16px', boxShadow: '0 4px 20px rgba(0,0,0,0.05)', border: '1px solid #f0f0f0', display: 'flex', flexDirection: 'column' }}>
-                    <h3 style={{ margin: '0 0 20px 0', color: '#2c3e50', fontSize: '1.2em', borderBottom: '2px solid #f4f7f6', paddingBottom: '15px' }}>Gestión de Patrulla Autónoma</h3>
-                    <p style={{ color: '#666', fontSize: '0.95em', marginBottom: '25px', lineHeight: '1.5' }}>Activa la ruta predefinida del robot por el almacén para tareas de supervisión. El robot esquivará obstáculos automáticamente.</p>
+                <div style={{ 
+                    background: darkMode ? '#0d1527' : 'white', 
+                    padding: '30px', 
+                    borderRadius: '16px', 
+                    boxShadow: '0 4px 20px rgba(0,0,0,0.05)', 
+                    border: darkMode ? '1px solid rgba(255,255,255,0.08)' : '1px solid #f0f0f0', 
+                    display: 'flex', 
+                    flexDirection: 'column',
+                    transition: 'all 0.3s'
+                }}>
+                    <h3 style={{ margin: '0 0 20px 0', color: darkMode ? '#fff' : '#2c3e50', fontSize: '1.2em', borderBottom: darkMode ? '2px solid #1a243d' : '2px solid #f4f7f6', paddingBottom: '15px' }}>Gestión de Patrulla Autónoma</h3>
+                    <p style={{ color: darkMode ? '#a0aec0' : '#666', fontSize: '0.95em', marginBottom: '25px', lineHeight: '1.5' }}>Activa la ruta predefinida del robot por el almacén para tareas de supervisión. El robot esquivará obstáculos automáticamente.</p>
                     
                     <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '15px', marginTop: 'auto' }}>
                         <button 
@@ -81,15 +102,31 @@ function Operaciones() {
                 </div>
 
                 {/* Panel de Escáner de Inventario */}
-                <div style={{ background: 'white', padding: '30px', borderRadius: '16px', boxShadow: '0 4px 20px rgba(0,0,0,0.05)', border: '1px solid #f0f0f0', display: 'flex', flexDirection: 'column' }}>
-                    <h3 style={{ margin: '0 0 20px 0', color: '#2c3e50', fontSize: '1.2em', borderBottom: '2px solid #f4f7f6', paddingBottom: '15px' }}>Control de Inventario (Lector)</h3>
+                <div style={{ 
+                    background: darkMode ? '#0d1527' : 'white', 
+                    padding: '30px', 
+                    borderRadius: '16px', 
+                    boxShadow: '0 4px 20px rgba(0,0,0,0.05)', 
+                    border: darkMode ? '1px solid rgba(255,255,255,0.08)' : '1px solid #f0f0f0', 
+                    display: 'flex', 
+                    flexDirection: 'column',
+                    transition: 'all 0.3s'
+                }}>
+                    <h3 style={{ margin: '0 0 20px 0', color: darkMode ? '#fff' : '#2c3e50', fontSize: '1.2em', borderBottom: darkMode ? '2px solid #1a243d' : '2px solid #f4f7f6', paddingBottom: '15px' }}>Control de Inventario (Lector)</h3>
                     
-                    <div style={{ background: '#f8f9fa', padding: '20px', borderRadius: '12px', textAlign: 'center', marginBottom: '25px', border: '1px solid #e9ecef' }}>
-                        <span style={{ fontSize: '0.9em', color: '#666', display: 'block', marginBottom: '5px' }}>Último producto detectado:</span>
+                    <div style={{ 
+                        background: darkMode ? '#152238' : '#f8f9fa', 
+                        padding: '20px', 
+                        borderRadius: '12px', 
+                        textAlign: 'center', 
+                        marginBottom: '25px', 
+                        border: darkMode ? '1px solid rgba(255,255,255,0.1)' : '1px solid #e9ecef' 
+                    }}>
+                        <span style={{ fontSize: '0.9em', color: darkMode ? '#a0aec0' : '#666', display: 'block', marginBottom: '5px' }}>Último producto detectado:</span>
                         <span style={{ 
                             fontSize: '1.8em', 
                             fontWeight: '900', 
-                            color: scanStatus === "En espera" ? '#0a2540' : scanStatus === "BUSCANDO..." ? '#f59f00' : '#2e7d32' 
+                            color: scanStatus === "En espera" ? (darkMode ? '#fff' : '#0a2540') : scanStatus === "BUSCANDO..." ? '#f59f00' : '#2e7d32' 
                         }}>
                             {scanStatus}
                         </span>
@@ -104,7 +141,12 @@ function Operaciones() {
                         </button>
                         <button 
                             onClick={() => triggerScan(false)} 
-                            style={{ ...btnStyle, background: '#eef2f5', color: '#dc3545', border: '1px solid #dce1e6' }}
+                            style={{ 
+                                ...btnStyle, 
+                                background: darkMode ? '#152238' : '#eef2f5', 
+                                color: '#dc3545', 
+                                border: darkMode ? '1px solid rgba(255,255,255,0.1)' : '1px solid #dce1e6' 
+                            }}
                         >
                             Cancelar
                         </button>

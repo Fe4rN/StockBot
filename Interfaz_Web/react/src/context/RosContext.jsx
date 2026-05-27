@@ -11,10 +11,13 @@ export const RosProvider = ({ children }) => {
 
     const [scanStatus, setScanStatus] = useState("En espera");
     const [securityAlert, setSecurityAlert] = useState("Sistema Normal");
-    const [patrolMode, setPatrolMode] = useState("MANUAL"); 
-    
+    const [patrolMode, setPatrolMode] = useState("MANUAL");
+
     // NUEVO: El estado del texto de navegación ahora es global
     const [statusText, setStatusText] = useState("Esperando órdenes...");
+
+    // Estado del modo oscuro
+    const [darkMode, setDarkMode] = useState(false);
 
     const connectRos = (ip) => {
         let final_address = ip;
@@ -25,9 +28,30 @@ export const RosProvider = ({ children }) => {
         const rosInstance = new ROSLIB.Ros({ url: final_address });
 
         rosInstance.on('connection', () => {
-            console.log("Conexión con ROSBridge correcta");
-            setIsConnected(true);
-            setRos(rosInstance);
+            console.log("Conexión con ROSBridge correcta. Verificando nodos del robot...");
+
+            // Consultar servicios para verificar que el robot esté ejecutándose
+            rosInstance.getServices((services) => {
+                const robotServices = ['/ir_a_estanteria', '/control_patrulla'];
+                const hasRobot = services.some(srv => robotServices.includes(srv));
+
+                if (hasRobot) {
+                    console.log("Robot detectado con éxito.");
+                    setIsConnected(true);
+                    setRos(rosInstance);
+                } else {
+                    console.warn("Nodos del robot no detectados.");
+                    alert("Advertencia. ROSBridge está activo, pero no se detectan los servicios del robot. Asegúrate de haber lanzado Gazebo, Rviz y sus nodos.");
+                    rosInstance.close();
+                    setIsConnected(false);
+                    setRos(null);
+                }
+            }, (error) => {
+                console.error("Error consultando servicios del robot:", error);
+                rosInstance.close();
+                setIsConnected(false);
+                setRos(null);
+            });
         });
 
         rosInstance.on('error', () => {
@@ -72,18 +96,19 @@ export const RosProvider = ({ children }) => {
             setPatrolMode(msg.data);
         });
 
-        return () => { 
-            resultSub.unsubscribe(); 
-            intruderSub.unsubscribe(); 
+        return () => {
+            resultSub.unsubscribe();
+            intruderSub.unsubscribe();
             estadoSub.unsubscribe();
         };
     }, [ros, isConnected]);
 
     return (
-        <RosContext.Provider value={{ 
+        <RosContext.Provider value={{
             ros, isConnected, connectRos, disconnectRos, address, setAddress,
             scanStatus, setScanStatus, securityAlert, setSecurityAlert,
-            patrolMode, setPatrolMode, statusText, setStatusText
+            patrolMode, setPatrolMode, statusText, setStatusText,
+            darkMode, setDarkMode
         }}>
             {children}
         </RosContext.Provider>

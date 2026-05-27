@@ -94,14 +94,24 @@ function Sidebar() {
                             ))}
                         </div>
 
-                        <input 
-                            type="text" 
-                            value={inputVal} 
-                            onChange={(e) => setInputVal(e.target.value)} 
-                            onKeyDown={(e) => e.key === 'Enter' && sendMessage()}
-                            placeholder="Ej: Activa la patrulla..." 
-                            style={{ width: '100%', padding: '12px', borderRadius: '8px', border: '1px solid #ddd', marginTop: '12px', boxSizing: 'border-box', outline: 'none', fontSize: '0.95em' }}
-                        />
+                        <div style={{ display: 'flex', gap: '8px', marginTop: '12px', width: '100%' }}>
+                            <input 
+                                type="text" 
+                                value={inputVal} 
+                                onChange={(e) => setInputVal(e.target.value)} 
+                                onKeyDown={(e) => e.key === 'Enter' && sendMessage()}
+                                placeholder="Ej: Activa la patrulla..." 
+                                style={{ flex: 1, padding: '12px', borderRadius: '8px', border: '1px solid #ddd', boxSizing: 'border-box', outline: 'none', fontSize: '0.95em', minWidth: 0 }}
+                            />
+                            <button 
+                                onClick={sendMessage}
+                                style={{ background: '#0d6efd', color: 'white', border: 'none', borderRadius: '8px', padding: '0 15px', cursor: 'pointer', fontWeight: 'bold', fontSize: '0.9em', transition: 'background 0.2s' }}
+                                onMouseEnter={(e) => e.target.style.background = '#0056b3'}
+                                onMouseLeave={(e) => e.target.style.background = '#0d6efd'}
+                            >
+                                Enviar
+                            </button>
+                        </div>
                     </div>
                 )}
                 

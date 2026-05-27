@@ -17,60 +17,120 @@ body {
 
 /* ---------- Sidebar ---------- */
 .sidebar {
-  background: #c6c8cb;
+  background: linear-gradient(180deg, #090e1a 0%, #0d1527 100%);
   padding: 0 0 20px;
   display: flex;
   flex-direction: column;
+  border-right: 1px solid rgba(255, 255, 255, 0.05);
+  box-shadow: 4px 0 25px rgba(0, 0, 0, 0.3);
+  transition: all 0.3s ease;
 }
 
 .logo {
-  background: #2196f3;
+  background: linear-gradient(135deg, #0052d4 0%, #4364f7 50%, #6fb1fc 100%);
   color: #fff;
-  font-size: 26px;
-  font-weight: 800;
-  padding: 18px 20px;
-  border-radius: 0 0 18px 0;
+  font-size: 24px;
+  font-weight: 900;
+  padding: 22px 20px;
+  border-radius: 0 0 20px 0;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  box-shadow: 0 4px 15px rgba(67, 100, 247, 0.4);
+  margin-bottom: 20px;
 }
 
 .sidebar-title {
-  margin: 18px 20px 12px;
-  font-size: 16px;
-  font-weight: 800;
+  margin: 25px 20px 12px;
+  font-size: 11px;
+  font-weight: 700;
+  color: #5f758d;
+  text-transform: uppercase;
+  letter-spacing: 2px;
 }
 
 .robot-list {
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 12px;
   padding: 0 16px;
   flex: 1;
 }
 
 .robot-btn {
-  background: #4eb1f7;
-  color: #fff;
-  border: 2px solid #1976d2;
-  border-radius: 14px;
-  padding: 10px 14px;
-  font-size: 15px;
-  font-weight: 700;
+  background: rgba(255, 255, 255, 0.03);
+  color: #a0aec0;
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 12px;
+  padding: 12px 16px;
+  font-size: 14px;
+  font-weight: 600;
   cursor: pointer;
+  transition: all 0.2s ease-in-out;
+  text-align: left;
+}
+
+.robot-btn:hover {
+  background: rgba(255, 255, 255, 0.07);
+  color: #fff;
+  border-color: rgba(255, 255, 255, 0.15);
+  transform: translateY(-1px);
 }
 
 .robot-btn.active {
-  background: #1976d2;
+  background: linear-gradient(135deg, #0d6efd 0%, #0056b3 100%) !important;
+  color: #fff !important;
+  border-color: #0d6efd !important;
+  box-shadow: 0 4px 12px rgba(13, 110, 253, 0.3) !important;
 }
 
 .add-robot-btn {
   margin: 16px;
-  background: #4caf50;
-  color: #fff;
-  border: 2px solid #2e7d32;
-  border-radius: 14px;
-  padding: 14px;
-  font-size: 15px;
-  font-weight: 700;
+  background: transparent;
+  color: #5f758d;
+  border: 1.5px dashed rgba(255, 255, 255, 0.15);
+  border-radius: 12px;
+  padding: 12px;
+  font-size: 14px;
+  font-weight: 600;
   cursor: pointer;
+  transition: all 0.2s ease;
+  text-align: center;
+}
+
+.add-robot-btn:hover {
+  border-color: #0d6efd;
+  color: #0d6efd;
+  background: rgba(13, 110, 253, 0.05);
+}
+
+/* Estilos específicos para la navegación de la barra lateral */
+.sidebar .main-nav .nav-btn {
+  background: transparent;
+  border: none;
+  border-left: 4px solid transparent;
+  color: #8f9cae;
+  border-radius: 0;
+  padding: 14px 20px;
+  font-weight: 600;
+  font-size: 15px;
+  text-decoration: none;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  cursor: pointer;
+}
+
+.sidebar .main-nav .nav-btn:hover {
+  background: rgba(255, 255, 255, 0.03);
+  color: #fff;
+}
+
+.sidebar .main-nav .nav-btn.active {
+  background: linear-gradient(90deg, rgba(13, 110, 253, 0.15) 0%, rgba(13, 110, 253, 0) 100%);
+  border-left: 4px solid #0d6efd;
+  color: #fff;
+  font-weight: 700;
 }
 
 /* ---------- Main ---------- */
