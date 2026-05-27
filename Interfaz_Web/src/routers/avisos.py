@@ -36,3 +36,13 @@ def crear_aviso(aviso: schemas.AvisoCreate, db: Session = Depends(get_db)):
     db.commit()
     db.refresh(nuevo_aviso)
     return nuevo_aviso
+
+# ENDPOINT: Eliminar un aviso
+@router.delete("/{aviso_id}")
+def eliminar_aviso(aviso_id: int, db: Session = Depends(get_db)):
+    aviso = db.query(models.Aviso).filter(models.Aviso.ID == aviso_id).first()
+    if not aviso:
+        raise HTTPException(status_code=404, detail="El aviso no existe")
+    db.delete(aviso)
+    db.commit()
+    return {"mensaje": "Aviso eliminado", "id": aviso_id}

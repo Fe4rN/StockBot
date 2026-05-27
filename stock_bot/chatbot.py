@@ -180,6 +180,16 @@ ANÁLISIS: """
         self.update_history("assistant", res)
         self.responder(res)
 
+    def enviar_historial_db(self, mensaje):
+        import requests
+        try:
+            requests.post("http://127.0.0.1:8000/historial/", json={
+                "ID_Robot": 5,
+                "Mensaje": mensaje
+            }, timeout=2.0)
+        except Exception as e:
+            self.get_logger().error(f"Error registrando comando de IA en historial: {e}")
+
     def ejecutar_accion_pendiente(self):
         """ Ejecuta los servicios de ROS 2 basándose en la acción validada. """
         evento = self.pending_action
@@ -189,12 +199,15 @@ ANÁLISIS: """
         if evento == "[PATROL_ON]":
             self.llamar_servicio(self.patrol_client, 1)
             self.responder(f"[CMD:PATROL_ON] {msg_ok}")
+            self.enviar_historial_db("Asistente IA: Activación de patrulla de vigilancia automática aprobada.")
         elif evento == "[NAV_1]":
             self.llamar_servicio(self.nav_client, 1)
             self.responder(f"[CMD:NAV_1] {msg_ok}")
+            self.enviar_historial_db("Asistente IA: Navegación de traslado hacia Estantería 1 aprobada.")
         elif evento == "[NAV_2]":
             self.llamar_servicio(self.nav_client, 2)
             self.responder(f"[CMD:NAV_2] {msg_ok}")
+            self.enviar_historial_db("Asistente IA: Navegación de traslado hacia Zona de Cajas 1 aprobada.")
 
     def llamar_servicio(self, cliente, valor):
         """

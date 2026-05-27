@@ -2,6 +2,7 @@ import unittest
 import sys
 import os
 # Añadimos el path para que encuentre la lógica
+sys.path.append(os.path.dirname(__file__))
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 from navigation_logic import get_coordinates, get_next_patrol_point, parse_decision
 

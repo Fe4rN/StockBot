@@ -59,6 +59,40 @@ class BarcodeReader(Node):
         response.message = "Escaneo detenido"
         return response
 
+    def registrar_escaneo_db(self, data):
+        import requests
+        try:
+            # 1. Registrar producto en el inventario
+            res_prod = requests.post(f"http://127.0.0.1:8000/productos/registrar?nombre={data}", timeout=2.0)
+            if res_prod.status_code == 200:
+                self.get_logger().info(f"DB: Inventario de '{data}' actualizado correctamente.")
+            else:
+                self.get_logger().error(f"Fallo actualizando inventario en API: {res_prod.status_code}")
+                
+            # 2. Registrar en el historial general
+            res_hist = requests.post("http://127.0.0.1:8000/historial/", json={
+                "ID_Robot": 5,
+                "Mensaje": f"Escaneo: Código '{data}' detectado. Inventario del almacén actualizado."
+            }, timeout=2.0)
+            if res_hist.status_code == 200:
+                self.get_logger().info("DB: Registro de escaneo guardado en historial.")
+            else:
+                self.get_logger().error(f"Fallo registrando historial en API: {res_hist.status_code}")
+                
+            # 3. Registrar en los avisos para la sección de Notificaciones
+            res_aviso = requests.post("http://127.0.0.1:8000/avisos/", json={
+                "Tipo": "success",
+                "Robot": 5,
+                "Almacen": 1,
+                "Informacion": f"Escáner: Producto '{data}' identificado correctamente e inventario actualizado."
+            }, timeout=2.0)
+            if res_aviso.status_code == 200:
+                self.get_logger().info("DB: Aviso de escaneo guardado.")
+            else:
+                self.get_logger().error(f"Fallo registrando aviso en API: {res_aviso.status_code}")
+        except Exception as e:
+            self.get_logger().error(f"Error conectando con la base de datos para registrar escaneo: {e}")
+
     def image_callback(self, msg):
         # Si no estamos en modo búsqueda, ignoramos el procesamiento para ahorrar CPU
         if not self.buscando:
@@ -85,8 +119,17 @@ class BarcodeReader(Node):
             clean = cv2.bilateralFilter(sharp, 7, 50, 50)
             _, thresh = cv2.threshold(clean, 0, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU)
             
-            # --- DETECCIÓN CON PYZBAR ---
-            barcodes = pyzbar.decode(thresh)
+            # --- DETECCIÓN CON PYZBAR (Multi-pass para máxima robustez en Gazebo) ---
+            # 1. Intentar primero con la imagen en escala de grises limpia (mejor para bordes suaves y antialiasing)
+            barcodes = pyzbar.decode(gray)
+            
+            # 2. Si falla, intentar con la versión enfocada con contraste CLAHE
+            if not barcodes:
+                barcodes = pyzbar.decode(sharp)
+                
+            # 3. Si falla, intentar con la binarizada por umbral de Otsu (líneas puras en blanco y negro)
+            if not barcodes:
+                barcodes = pyzbar.decode(thresh)
             
             for barcode in barcodes:
                 data = barcode.data.decode('utf-8')
@@ -96,6 +139,9 @@ class BarcodeReader(Node):
                 msg_status = String()
                 msg_status.data = data
                 self.publisher_.publish(msg_status)
+                
+                # Registramos en base de datos
+                self.registrar_escaneo_db(data)
                 
                 # Una vez encontrado un producto, detenemos la búsqueda automática
                 self.buscando = False

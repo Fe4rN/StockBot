@@ -1,11 +1,25 @@
+import { useEffect, useState } from 'react';
 import { useRos } from '../context/RosContext';
 
 function Operaciones() {
-    // Ya no necesitamos useEffects aquí, todo viene del cerebro global
     const { ros, isConnected, scanStatus, setScanStatus, securityAlert, patrolMode, setPatrolMode, darkMode } = useRos();
+    const [productos, setProductos] = useState([]);
     
     // Comprobamos si hay una alerta activa para cambiar colores
     const isAlert = securityAlert !== "Sistema Normal";
+
+    const fetchProductos = () => {
+        fetch("http://127.0.0.1:8000/productos/")
+            .then(res => res.json())
+            .then(data => setProductos(data))
+            .catch(err => console.error("Error cargando productos", err));
+    };
+
+    useEffect(() => {
+        fetchProductos();
+        const interval = setInterval(fetchProductos, 3000);
+        return () => clearInterval(interval);
+    }, []);
 
     const controlPatrol = (command) => {
         if (!ros || !isConnected) return;
@@ -42,7 +56,7 @@ function Operaciones() {
                         <span style={{ fontSize: '0.85em', color: '#a3c2e0', textTransform: 'uppercase', letterSpacing: '1px' }}>Modo de Operación</span>
                         <span style={{ fontSize: '1.4em', fontWeight: 'bold' }}>{patrolMode}</span>
                     </div>
-                    {patrolMode === 'PATRULLA' && <span style={{ fontSize: '2em' }}>🔄</span>}
+                    {patrolMode === 'PATRULLA' && <span style={{ fontSize: '2.5em' }}>🔄</span>}
                 </div>
 
                 <div style={{ 
@@ -151,6 +165,58 @@ function Operaciones() {
                             Cancelar
                         </button>
                     </div>
+                </div>
+            </div>
+
+            {/* Tabla de Inventario de Productos */}
+            <div style={{ 
+                background: darkMode ? '#0d1527' : 'white', 
+                padding: '30px', 
+                borderRadius: '16px', 
+                boxShadow: '0 4px 20px rgba(0,0,0,0.05)', 
+                border: darkMode ? '1px solid rgba(255,255,255,0.08)' : '1px solid #f0f0f0', 
+                display: 'flex', 
+                flexDirection: 'column',
+                transition: 'all 0.3s'
+            }}>
+                <h3 style={{ margin: '0 0 20px 0', color: darkMode ? '#fff' : '#2c3e50', fontSize: '1.2em', borderBottom: darkMode ? '2px solid #1a243d' : '2px solid #f4f7f6', paddingBottom: '15px' }}>
+                    Inventario en Almacén
+                </h3>
+                <div style={{ maxHeight: '350px', overflowY: 'auto' }}>
+                    <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left' }}>
+                        <thead>
+                            <tr style={{ backgroundColor: darkMode ? '#152238' : '#f8f9fa' }}>
+                                <th style={{ padding: '12px 15px', color: darkMode ? '#fff' : '#333' }}>Producto</th>
+                                <th style={{ padding: '12px 15px', color: darkMode ? '#fff' : '#333' }}>Cantidad</th>
+                                <th style={{ padding: '12px 15px', color: darkMode ? '#fff' : '#333' }}>Almacén</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {productos.length > 0 ? productos.map((p) => (
+                                <tr key={p.ID} style={{ borderBottom: darkMode ? '1px solid rgba(255, 255, 255, 0.05)' : '1px solid #eee' }}>
+                                    <td style={{ padding: '12px 15px', color: darkMode ? '#e2e8f0' : '#333', fontWeight: 'bold' }}>{p.Nombre}</td>
+                                    <td style={{ padding: '12px 15px', color: darkMode ? '#e2e8f0' : '#333' }}>
+                                        <span style={{ 
+                                            padding: '4px 10px', 
+                                            borderRadius: '6px', 
+                                            background: 'rgba(59, 130, 246, 0.1)', 
+                                            color: '#3b82f6', 
+                                            fontWeight: 'bold' 
+                                        }}>
+                                            {p.Cantidad} uds
+                                        </span>
+                                    </td>
+                                    <td style={{ padding: '12px 15px', color: darkMode ? '#cbd5e1' : '#666' }}>{p.Almacen === 1 ? 'PayoLandia' : 'Hachas Jauregui'}</td>
+                                </tr>
+                            )) : (
+                                <tr>
+                                    <td colSpan="3" style={{ textAlign: 'center', padding: '20px', color: '#999' }}>
+                                        No hay productos registrados en el inventario.
+                                    </td>
+                                </tr>
+                            )}
+                        </tbody>
+                    </table>
                 </div>
             </div>
         </div>

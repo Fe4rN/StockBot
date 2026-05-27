@@ -113,6 +113,15 @@ function Home() {
         }
     `;
 
+    // Helper para verificar si hay sesión activa mediante la cookie
+    const getCookie = (name) => {
+        const value = `; ${document.cookie}`;
+        const parts = value.split(`; ${name}=`);
+        if (parts.length === 2) return parts.pop().split(';').shift();
+        return null;
+    };
+    const hasSession = getCookie('session_user') !== null;
+
     return (
         <div style={containerStyle}>
             {/* Inyectamos estilos locales para animaciones complejas */}
@@ -132,7 +141,7 @@ function Home() {
                     </p>
                     <div style={ctaContainerStyle}>
                         <Link 
-                            to="/teleoperacion" 
+                            to={hasSession ? "/teleoperacion" : "/login"} 
                             style={btnPrimaryStyle}
                             onMouseEnter={(e) => {
                                 e.target.style.transform = 'translateY(-2px)';

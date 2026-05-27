@@ -103,9 +103,19 @@ class PatrollerNode(Node):
                 
         except requests.exceptions.RequestException as e:
             self.get_logger().error(f"Error conectando con la base de datos: {e}")
-                
-        except requests.exceptions.RequestException as e:
-            self.get_logger().error(f"Error conectando con la base de datos: {e}")
+
+    def enviar_historial_db(self, mensaje):
+        try:
+            api_url = "http://127.0.0.1:8000/historial/"
+            datos = {
+                "ID_Robot": 5,
+                "Mensaje": mensaje
+            }
+            respuesta = requests.post(api_url, json=datos, timeout=2.0)
+            if respuesta.status_code != 200:
+                self.get_logger().error(f"Fallo de la API de historial: {respuesta.status_code}")
+        except Exception as e:
+            self.get_logger().error(f"Error conectando con la base de datos para registrar historial: {e}")
 
     async def service_callback(self, request, response):
         """
@@ -123,6 +133,7 @@ class PatrollerNode(Node):
                 self.get_logger().info("Activando interruptor de patrulla...")
                 self.patrolling = True
                 self.enviar_notificacion("Modo Patrulla AUTOMÁTICA activado", "info")
+                self.enviar_historial_db("Patrulla: Modo de patrullaje automático activado por el operador.")
                 response.success = True
                 response.message = "Patrulla activada. El robot empezará en breve."
                     
@@ -133,6 +144,7 @@ class PatrollerNode(Node):
                     await self.goal_handle.cancel_goal_async()
                     self.get_logger().info("Acción de Nav2 cancelada.")
                 self.enviar_notificacion("La patrulla ha sido detenida por el usuario", "warning")
+                self.enviar_historial_db("Patrulla: Modo de patrullaje detenido manualmente por el operador.")
                 response.success = True
                 response.message = "Patrulla desactivada y robot parado."
                 
@@ -157,15 +169,18 @@ class PatrollerNode(Node):
             if self.patrolling and not self.is_executing:
                 self.is_executing = True 
                 self.enviar_notificacion("Comenzando nueva ronda de patrullaje por los puntos", "info")
+                self.enviar_historial_db("Patrulla: Iniciando una nueva ronda de patrulla por los puntos preestablecidos.")
                 self.get_logger().info(">>> Iniciando nueva vuelta de patrulla...")
                 
                 success = await self.execute_nav2_patrol()
                 
                 if success:
                     self.enviar_notificacion("Ronda de patrullaje completada sin incidentes", "success")
+                    self.enviar_historial_db("Patrulla: Ronda de patrulla completada con éxito.")
                 else:
                     if self.patrolling:
                         self.enviar_notificacion("Fallo durante la ronda de patrulla o ruta bloqueada", "error")
+                        self.enviar_historial_db("Patrulla: Error en navegación. El robot no completó la patrulla.")
                 
                 self.is_executing = False 
         except Exception as e:

@@ -39,9 +39,29 @@ class IntruderDetector(Node):
         # --- VARIABLES DE CONTROL DE ALERTAS ---
         self.last_alert_time = 0        # Cuándo fue el último aviso
         self.cooldown_duration = 15.0   # Segundos que el robot debe estar en silencio
+        self.last_window_alert_time = 0
+        self.window_alert_cooldown = 10.0
         # ------------------------------------
 
         self.get_logger().info('Vigilante StockBot Unificado: ¡En servicio con Cooldown de 15s!')
+
+    def enviar_aviso_db(self, mensaje, nivel="warning"):
+        import requests
+        try:
+            api_url = "http://127.0.0.1:8000/avisos/"
+            datos = {
+                "Tipo": nivel,
+                "Robot": 5,
+                "Almacen": 1,
+                "Informacion": mensaje
+            }
+            res = requests.post(api_url, json=datos, timeout=2.0)
+            if res.status_code == 200:
+                self.get_logger().info(f"DB: Alerta '{nivel}' guardada correctamente.")
+            else:
+                self.get_logger().error(f"Fallo enviando alerta en API: {res.status_code}")
+        except Exception as e:
+            self.get_logger().error(f"Error conectando con la base de datos para enviar alerta: {e}")
 
     def analizar_estado_ventana(self, recorte):
         """
@@ -74,11 +94,14 @@ class IntruderDetector(Node):
                     self.pub_intrusos.publish(msg_alert)
                     self.last_alert_time = current_time
                     self.get_logger().warn("¡Persona detectada sin brazalete! Alerta enviada.")
+                    
+                    # Enviar a la base de datos
+                    self.enviar_aviso_db("Intruso detectado en zona de cámaras (Sin brazalete autorizado)", "danger")
 
             # Dibujamos las detecciones en la imagen de visualización
-            frame = results_p[0].plot(im=frame)
+            frame = results_p[0].plot(img=frame)
             if hay_brazalete:
-                frame = results_b[0].plot(im=frame)
+                frame = results_b[0].plot(img=frame)
 
 
             # --- 2. LÓGICA DE DETECCIÓN Y ESTADO DE VENTANAS ---
@@ -105,6 +128,12 @@ class IntruderDetector(Node):
                     msg_vent = String()
                     msg_vent.data = f"Ventana en ({x1},{y1}) está {estado}"
                     self.pub_ventanas.publish(msg_vent)
+                    
+                    # Alertar a la base de datos si la ventana no está cerrada y respetando cooldown
+                    if estado != "CERRADA" and (current_time - self.last_window_alert_time) > self.window_alert_cooldown:
+                        self.last_window_alert_time = current_time
+                        nivel = "danger" if estado == "ROTA" else "warning"
+                        self.enviar_aviso_db(f"Estado de ventana anómalo detectado: {estado} en ({x1}, {y1})", nivel)
 
             # Mostramos la ventana de vigilancia unificada
             cv2.imshow("Vigilancia Unificada (IA + OpenCV)", frame)
