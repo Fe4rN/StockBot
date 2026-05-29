@@ -45,12 +45,51 @@ class IntruderDetector(Node):
 
     def analizar_estado_ventana(self, recorte):
         """
-        Función para que implementéis vuestra lógica de OpenCV (grietas, Canny, color, etc.)
-        de forma separada y unificada.
+        Función para detectar el estado de la ventana usando lógica OpenCV
+        (grietas con Canny y detección de áreas abiertas mediante píxeles oscuros).
         """
-        # Por ahora simulamos que detecta que está CERRADA, pero aquí podéis meter
-        # filtros como cv2.Canny(), cv2.findContours(), etc.
-        return "CERRADA"
+        try:
+            # Convertir a escala de grises
+            gray = cv2.cvtColor(recorte, cv2.COLOR_BGR2GRAY)
+            
+            # --- DETECCIÓN DE VENTANA ABIERTA (HUECO OSCURO) ---
+            # Buscamos el porcentaje de área que tiene un tono oscuro/vacío (brillo inferior a 45)
+            _, thresh_dark = cv2.threshold(gray, 45, 255, cv2.THRESH_BINARY_INV)
+            pct_dark = (cv2.countNonZero(thresh_dark) / (gray.shape[0] * gray.shape[1])) * 100
+            
+            # --- DETECCIÓN DE VENTANA ROTA (GRIETAS) ---
+            # Aplicamos Canny para ver la densidad de bordes en el cristal
+            edges = cv2.Canny(gray, 30, 100)
+            pct_edges = (cv2.countNonZero(edges) / (gray.shape[0] * gray.shape[1])) * 100
+            
+            # --- ANÁLISIS DE CONTORNO OSCURO ---
+            contours, _ = cv2.findContours(thresh_dark, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+            max_contour_area_pct = 0.0
+            total_area = gray.shape[0] * gray.shape[1]
+            if contours:
+                max_contour = max(contours, key=cv2.contourArea)
+                max_contour_area_pct = (cv2.contourArea(max_contour) / total_area) * 100
+
+            # Imprimir métricas por consola para monitorizar
+            self.get_logger().info(
+                f"🔍 Ventana: pct_edges={pct_edges:.1f}%, pct_dark={pct_dark:.1f}%, max_dark_contour={max_contour_area_pct:.1f}%"
+            )
+            
+            # --- CLASIFICACIÓN CON DATOS DE LOG REAL ---
+            if pct_dark < 5.0:
+                # Si casi no hay oscuridad, la ventana está cerrada/sana
+                return "CERRADA"
+            else:
+                # Si hay oscuridad, distinguimos por el tamaño del hueco continuo
+                if max_contour_area_pct > 25.0:
+                    # Hueco continuo muy grande (la ventana abierta)
+                    return "ABIERTA"
+                else:
+                    # Huecos pequeños pero con oscuridad y bordes (vidrio roto)
+                    return "ROTA"
+        except Exception as e:
+            self.get_logger().error(f"Error analizando estado de la ventana: {e}")
+            return "CERRADA"
 
     def callback(self, msg):
         try:
@@ -82,9 +121,13 @@ class IntruderDetector(Node):
 
 
             # --- 2. LÓGICA DE DETECCIÓN Y ESTADO DE VENTANAS ---
-            results_v = self.model_ventanas(frame, conf=0.5, verbose=False)
+            results_v = self.model_ventanas(frame, conf=0.45, verbose=False)
 
             for box in results_v[0].boxes:
+                # Mostrar la confianza real de la detección por consola
+                confianza = box.conf[0].item()
+                #self.get_logger().info(f"🔍 Detección ventana - Confianza: {confianza:.2f}")
+
                 # Coordenadas de la ventana detectada por YOLO
                 xyxy = box.xyxy[0].cpu().numpy().astype(int)
                 x1, y1, x2, y2 = xyxy

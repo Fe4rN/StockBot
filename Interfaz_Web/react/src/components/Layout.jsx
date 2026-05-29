@@ -1,10 +1,27 @@
-import { Outlet } from 'react-router-dom';
+import { Outlet, useNavigate } from 'react-router-dom';
+import { useEffect } from 'react';
 import Sidebar from './Sidebar';
 import PanelHeader from '../PanelHeader';
 import { useRos } from '../context/RosContext';
 
 function Layout() {
     const { darkMode } = useRos();
+    const navigate = useNavigate();
+
+    // Helper para leer cookies
+    const getCookie = (name) => {
+        const value = `; ${document.cookie}`;
+        const parts = value.split(`; ${name}=`);
+        if (parts.length === 2) return parts.pop().split(';').shift();
+        return null;
+    };
+
+    useEffect(() => {
+        const sessionUser = getCookie("session_user");
+        if (!sessionUser) {
+            navigate("/login");
+        }
+    }, [navigate]);
 
     return (
         <div style={{ 

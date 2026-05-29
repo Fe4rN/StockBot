@@ -1,0 +1,13 @@
+material Ventana/Textura
+{
+  technique
+  {
+    pass
+    {
+      texture_unit
+      {
+        texture textura_ventana.png
+      }
+    }
+  }
+}
