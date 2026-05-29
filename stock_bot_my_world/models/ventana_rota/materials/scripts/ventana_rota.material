@@ -1,0 +1,13 @@
+material VentanaRota/Textura
+{
+  technique
+  {
+    pass
+    {
+      texture_unit
+      {
+        texture textura_ventana_rota.png
+      }
+    }
+  }
+}

@@ -256,5 +256,23 @@
       <pose>1.4841 3.1094 0.02 0 0 -1.4693</pose>
     </include>
 
+    <include>
+      <uri>model://ventana</uri>
+      <name>ventana</name>
+      <pose>1.9038 0.4832 0.6316 0 0 0.0959</pose> 
+    </include>
+
+    <include>
+      <uri>model://ventana_rota</uri>
+      <name>ventana_rota</name>
+      <pose>1.9677 -2.8083 0.6269 0 0 -0.4724</pose> 
+    </include>
+
+    <include>
+      <uri>model://ventana_abierta</uri>
+      <name>ventana_abierta</name>
+      <pose>1.3204 -5.8254 0.6072 0 0 -0.6458</pose> 
+    </include>
+
   </world>
 </sdf>

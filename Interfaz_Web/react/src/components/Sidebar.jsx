@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { NavLink } from 'react-router-dom';
 import { useRos } from '../context/RosContext';
 
@@ -7,6 +7,16 @@ function Sidebar() {
     const [chatOpen, setChatOpen] = useState(false);
     const [history, setHistory] = useState([{ sender: 'bot', text: '¡Hola! Soy StockBot. ¿Qué necesitas?' }]);
     const [inputVal, setInputVal] = useState('');
+    const [isThinking, setIsThinking] = useState(false);
+    
+    const chatEndRef = useRef(null);
+
+    // Auto-scroll al final del chat cuando hay nuevos mensajes o cambia el estado de pensamiento
+    useEffect(() => {
+        if (chatEndRef.current) {
+            chatEndRef.current.scrollIntoView({ behavior: 'smooth' });
+        }
+    }, [history, isThinking, chatOpen]);
 
     useEffect(() => {
         if (!ros || !isConnected) return;
@@ -19,6 +29,7 @@ function Sidebar() {
                 texto = texto.replace(/\[CMD:.*\]/, "").trim();
             }
             setHistory(prev => [...prev, { sender: 'bot', text: texto }]);
+            setIsThinking(false); // Detener animación cuando responde
         });
 
         return () => chatSub.unsubscribe();
@@ -32,6 +43,7 @@ function Sidebar() {
         
         setHistory(prev => [...prev, { sender: 'user', text: inputVal }]);
         setInputVal('');
+        setIsThinking(true); // Iniciar animación de "pensando"
     };
 
     // Estilos de botones de navegación (inyecciones directas para evitar sobreescritura de CSS global)
@@ -178,6 +190,28 @@ function Sidebar() {
                             <button onClick={() => setChatOpen(false)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#999', fontSize: '1.2em' }}>✖</button>
                         </div>
                         
+                        <style>{`
+                            @keyframes typing-dot {
+                                0% { opacity: .2; }
+                                20% { opacity: 1; }
+                                100% { opacity: .2; }
+                            }
+                            .typing-dots span {
+                                animation-name: typing-dot;
+                                animation-duration: 1.4s;
+                                animation-iteration-count: infinite;
+                                animation-fill-mode: both;
+                                font-size: 1.6em;
+                                line-height: 1;
+                            }
+                            .typing-dots span:nth-child(2) {
+                                animation-delay: .2s;
+                            }
+                            .typing-dots span:nth-child(3) {
+                                animation-delay: .4s;
+                            }
+                        `}</style>
+                        
                         <div style={{ flex: 1, overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: '8px', paddingRight: '5px' }}>
                             {history.map((h, i) => (
                                 <div key={i} style={{ 
@@ -195,6 +229,29 @@ function Sidebar() {
                                     {h.text}
                                 </div>
                             ))}
+                            {isThinking && (
+                                <div style={{ 
+                                    alignSelf: 'flex-start', 
+                                    background: darkMode ? 'rgba(255, 255, 255, 0.05)' : '#f1f3f5', 
+                                    color: darkMode ? '#cbd5e1' : '#333', 
+                                    padding: '6px 14px', 
+                                    borderRadius: '16px', 
+                                    borderBottomLeftRadius: '4px',
+                                    maxWidth: '85%',
+                                    fontSize: '0.95em',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    gap: '6px'
+                                }}>
+                                    <span>Pensando</span>
+                                    <span className="typing-dots" style={{ display: 'flex', alignItems: 'center', height: '10px' }}>
+                                        <span style={{ fontSize: '1.5em', margin: '0 1px' }}>.</span>
+                                        <span style={{ fontSize: '1.5em', margin: '0 1px' }}>.</span>
+                                        <span style={{ fontSize: '1.5em', margin: '0 1px' }}>.</span>
+                                    </span>
+                                </div>
+                            )}
+                            <div ref={chatEndRef} />
                         </div>
 
                         <div style={{ display: 'flex', gap: '8px', marginTop: '12px', width: '100%' }}>

@@ -54,7 +54,9 @@ class StockBotChat(Node):
                 "Eres StockBot, un robot mozo de almacén del Equipo 5. "
                 "Funciones: Patrullar (vigilancia), Navegar a Estantería 1 ([NAV_1]), "
                 "Navegar a Cajas 1 ([NAV_2]) y leer códigos de barras. "
-                "Eres un trabajador industrial. No eres un asistente personal ni de oficina."
+                "Eres un trabajador industrial conciso y directo. No te extiendas en rodeos. "
+                "Responde de forma muy breve, directa y clara. "
+                "Tu límite máximo es de 256 tokens, por lo que debes ir directo al grano para evitar que se corte la respuesta."
             )
 
             self.sub = self.create_subscription(String, '/chat_input', self.listener_callback, 10)
@@ -69,10 +71,12 @@ class StockBotChat(Node):
                 "posicion_x": 0.0,
                 "posicion_y": 0.0
             }
+            self.ventanas = {}
 
             # Suscripciones extra a los "sentidos" del robot
             self.create_subscription(String, '/resultado_busqueda', self.callback_vision, 10)
             self.create_subscription(String, '/alertas_intrusion', self.callback_seguridad, 10)
+            self.create_subscription(String, '/estado_ventanas', self.callback_ventanas, 10)
             
             self.get_logger().info('✅ StockBot operativo y listo para el turno.')
         except Exception as e:
@@ -84,6 +88,30 @@ class StockBotChat(Node):
 
     def callback_seguridad(self, msg):
         self.estado_fisico["estado_seguridad"] = msg.data
+
+    def callback_ventanas(self, msg):
+        datos = msg.data
+        if " está " in datos:
+            ventana, estado = datos.split(" está ", 1)
+            self.ventanas[ventana] = estado
+
+    def obtener_ultimos_avisos(self):
+        import requests
+        try:
+            res = requests.get("http://127.0.0.1:8000/avisos/?limit=5", timeout=1.0)
+            if res.status_code == 200:
+                avisos = res.json()
+                if not avisos:
+                    return "No hay avisos registrados en el historial."
+                ret = []
+                for a in avisos:
+                    # Simplificamos el tiempo para que no consuma demasiados tokens
+                    tiempo = a.get('Tiempo', 'Reciente').split('T')[-1].split('.')[0] if 'T' in a.get('Tiempo', '') else 'Reciente'
+                    ret.append(f"- [{tiempo}] {a.get('Informacion')}")
+                return "\n".join(ret)
+        except Exception:
+            pass
+        return "No se pudo obtener el historial de avisos."
 
     def listener_callback(self, msg):
         """
@@ -101,10 +129,14 @@ class StockBotChat(Node):
         contexto_chat = "".join([f"{h['role']}: {h['content']}\n" for h in self.history])
         estado_actual = f"Esperando confirmación para: {self.pending_action}" if self.pending_action else "Libre"
 
+        ultimos_avisos = self.obtener_ultimos_avisos()
+        estado_ventanas_str = ", ".join([f"{k}: {v}" for k, v in self.ventanas.items()]) if self.ventanas else "Ninguna anomalía detectada"
         estado_en_tiempo_real = (
             f"--- TELEMETRÍA DEL ROBOT ---\n"
             f"Último producto escaneado: {self.estado_fisico['ultimo_producto_visto']}\n"
             f"Estado de seguridad: {self.estado_fisico['estado_seguridad']}\n"
+            f"Estado de las ventanas del almacén: {estado_ventanas_str}\n"
+            f"Últimas notificaciones/alertas en el almacén:\n{ultimos_avisos}\n"
             f"----------------------------\n"
         )
 
@@ -116,8 +148,15 @@ Conversación:
 Estado: {estado_actual}
 
 Instrucciones:
-- Analiza si el usuario confirma una orden o da una nueva.
-- Etiquetas: [PATROL_ON], [PATROL_OFF], [NAV_1], [NAV_2], [NONE], [RECHAZAR].
+- Analiza si el usuario confirma una orden o da una nueva de movimiento.
+- Si el usuario hace una pregunta, pide información sobre la telemetría, el estado de las ventanas, el historial u otra consulta informativa, debes decidir obligatoriamente [NONE].
+- Etiquetas de comando:
+  * [PATROL_ON] -> Iniciar patrulla.
+  * [PATROL_OFF] -> Parar patrulla.
+  * [NAV_1] -> Ir a Estantería 1.
+  * [NAV_2] -> Ir a Cajas 1.
+  * [NONE] -> Consultas informativas, preguntas de estado, ver historial/ventanas o charla casual.
+  * [RECHAZAR] -> Peticiones de acciones físicas/comandos imposibles o ajenos a logística.
 - Responde estrictamente con este formato:
 ANÁLISIS: <razonamiento>
 DECISIÓN: [ETIQUETA]
@@ -128,7 +167,10 @@ DECISIÓN: [ETIQUETA]
 ANÁLISIS: """
 
         output = self.llm(prompt_unico, max_tokens=256, stop=["<|im_end|>"], echo=False)
-        respuesta_completa = output['choices'][0]['text']
+        respuesta_completa = "ANÁLISIS: " + output['choices'][0]['text']
+        
+        # Mostrar el razonamiento completo por consola para depuración
+        self.get_logger().info(f"\n--- RAZONAMIENTO DEL LLM ---\n{respuesta_completa}\n-----------------------------")
         
         try:
             parte_decision = respuesta_completa.split("DECISIÓN:")[-1].upper()
@@ -164,10 +206,14 @@ ANÁLISIS: """
         """
         contexto = "".join([f"<|im_start|>{h['role']}\n{h['content']}<|im_end|>\n" for h in self.history])
         
+        ultimos_avisos = self.obtener_ultimos_avisos()
+        estado_ventanas_str = ", ".join([f"{k}: {v}" for k, v in self.ventanas.items()]) if self.ventanas else "Ninguna anomalía detectada"
         estado_en_tiempo_real = (
             f"--- TELEMETRÍA DEL ROBOT ---\n"
             f"Último producto escaneado: {self.estado_fisico['ultimo_producto_visto']}\n"
             f"Estado de seguridad: {self.estado_fisico['estado_seguridad']}\n"
+            f"Estado de las ventanas del almacén: {estado_ventanas_str}\n"
+            f"Últimas notificaciones/alertas en el almacén:\n{ultimos_avisos}\n"
             f"----------------------------\n"
         )
 
@@ -199,7 +245,9 @@ ANÁLISIS: """
         if evento == "[PATROL_ON]":
             self.llamar_servicio(self.patrol_client, 1)
             self.responder(f"[CMD:PATROL_ON] {msg_ok}")
-            self.enviar_historial_db("Asistente IA: Activación de patrulla de vigilancia automática aprobada.")
+        elif evento == "[PATROL_OFF]":
+            self.llamar_servicio(self.patrol_client, 0)
+            self.responder(f"[CMD:PATROL_OFF] {msg_ok}")
         elif evento == "[NAV_1]":
             self.llamar_servicio(self.nav_client, 1)
             self.responder(f"[CMD:NAV_1] {msg_ok}")
@@ -238,6 +286,7 @@ ANÁLISIS: """
     def lanzar_pregunta_confirmacion(self, evento):
         """ Solicita confirmación al usuario antes de proceder con una orden. """
         if evento == "[PATROL_ON]": self.responder("He recibido la orden de patrulla. ¿Confirma?")
+        elif evento == "[PATROL_OFF]": self.responder("He recibido la orden de detener la patrulla. ¿Confirma?")
         elif evento == "[NAV_1]": self.responder("¿Desea que me desplace a la Estantería 1?")
         elif evento == "[NAV_2]": self.responder("¿Navego hacia la zona de Cajas 1?")
 
