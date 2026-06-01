@@ -15,6 +15,7 @@ export const RosProvider = ({ children }) => {
     const [statusText, setStatusText] = useState("Esperando órdenes...");
     const [darkMode, setDarkMode] = useState(false);
     const [batteryLevel, setBatteryLevel] = useState(100);
+    const [isBatterySimulated, setIsBatterySimulated] = useState(true);
 
     // NUEVO: Estados globales de telemetría y salud del robot
     const [velocity, setVelocity] = useState({ linear: 0, angular: 0 });
@@ -59,12 +60,14 @@ export const RosProvider = ({ children }) => {
             console.log("Error al conectar");
             setIsConnected(false);
             setRos(null);
+            setIsBatterySimulated(true);
         });
 
         rosInstance.on('close', () => {
             console.log("Conexión cerrada");
             setIsConnected(false);
             setRos(null);
+            setIsBatterySimulated(true);
         });
     };
 
@@ -72,16 +75,19 @@ export const RosProvider = ({ children }) => {
         if (ros) ros.close();
         setIsConnected(false);
         setRos(null);
+        setIsBatterySimulated(true);
     };
 
-    // Simular descarga de batería de 30 minutos (baja 1% cada 18 segundos)
+    // Simular descarga de batería de 30 minutos (baja 1% cada 18 segundos) solo si está en modo simulado
     useEffect(() => {
+        if (!isBatterySimulated) return;
+
         const interval = setInterval(() => {
             setBatteryLevel(prev => (prev > 1 ? prev - 1 : 100));
         }, 18000);
 
         return () => clearInterval(interval);
-    }, []);
+    }, [isBatterySimulated]);
 
     // Escucha Global Ininterrumpida
     useEffect(() => {
@@ -115,6 +121,8 @@ export const RosProvider = ({ children }) => {
         const batterySub = new ROSLIB.Topic({ ros: ros, name: '/battery_state', messageType: 'sensor_msgs/msg/BatteryState' });
         batterySub.subscribe((msg) => {
             if (msg) {
+                // Si recibimos datos reales del robot, la batería ya no es simulada
+                setIsBatterySimulated(false);
                 // Extraer el valor del voltaje (si no viene, intentamos usar el percentage si está inflado)
                 let raw_voltage = (msg.voltage !== undefined && msg.voltage !== 0) ? msg.voltage : (msg.percentage || 0);
 
@@ -191,6 +199,7 @@ export const RosProvider = ({ children }) => {
             scanStatus, setScanStatus, securityAlert, setSecurityAlert,
             patrolMode, setPatrolMode, statusText, setStatusText,
             darkMode, setDarkMode, batteryLevel, setBatteryLevel,
+            isBatterySimulated, setIsBatterySimulated,
             velocity, orientation, minObstacleDist
         }}>
             {children}

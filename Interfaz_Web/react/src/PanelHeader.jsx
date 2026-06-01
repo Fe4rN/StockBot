@@ -2,7 +2,7 @@ import { useRos } from './context/RosContext';
 import { useNavigate } from 'react-router-dom';
 
 function PanelHeader() {
-    const { isConnected, connectRos, disconnectRos, address, setAddress, darkMode, setDarkMode, batteryLevel, setBatteryLevel } = useRos();
+    const { isConnected, connectRos, disconnectRos, address, setAddress, darkMode, setDarkMode, batteryLevel, setBatteryLevel, isBatterySimulated } = useRos();
     const navigate = useNavigate();
 
     const handleConnect = (e) => {
@@ -136,27 +136,49 @@ function PanelHeader() {
                         </span>
                         {isLowBattery && <span className="blink-critical" style={{ fontSize: '0.85em', color: '#ef4444' }}>(CRÍTICA)</span>}
                     </span>
-                    <button
-                        onClick={() => setBatteryLevel(100)}
-                        style={{
-                            background: 'rgba(74, 222, 128, 0.15)',
-                            border: '1px solid rgba(74, 222, 128, 0.3)',
-                            borderRadius: '4px',
-                            color: '#4ade80',
-                            cursor: 'pointer',
-                            fontSize: '0.75em',
-                            fontWeight: 'bold',
-                            padding: '2px 6px',
-                            marginLeft: '6px',
-                            transition: 'all 0.2s'
-                        }}
-                        onMouseEnter={(e) => e.target.style.background = 'rgba(74, 222, 128, 0.3)'}
-                        onMouseLeave={(e) => e.target.style.background = 'rgba(74, 222, 128, 0.15)'}
-                        title="Simular cambio de batería (Reset a 100%)"
-                    >
-                        🔄 Cambiar
-                    </button>
+                    {isBatterySimulated && (
+                        <button
+                            onClick={() => setBatteryLevel(100)}
+                            style={{
+                                background: 'rgba(74, 222, 128, 0.15)',
+                                border: '1px solid rgba(74, 222, 128, 0.3)',
+                                borderRadius: '4px',
+                                color: '#4ade80',
+                                cursor: 'pointer',
+                                fontSize: '0.75em',
+                                fontWeight: 'bold',
+                                padding: '2px 6px',
+                                marginLeft: '6px',
+                                transition: 'all 0.2s'
+                            }}
+                            onMouseEnter={(e) => e.target.style.background = 'rgba(74, 222, 128, 0.3)'}
+                            onMouseLeave={(e) => e.target.style.background = 'rgba(74, 222, 128, 0.15)'}
+                            title="Simular cambio de batería (Reset a 100%)"
+                        >
+                            🔄 Cambiar
+                        </button>
+                    )}
                 </div>
+
+                <button
+                    onClick={() => setDarkMode(!darkMode)}
+                    style={{
+                        background: darkMode ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.2)',
+                        border: 'none',
+                        borderRadius: '30px',
+                        padding: '8px 16px',
+                        color: 'white',
+                        cursor: 'pointer',
+                        fontSize: '1em',
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '8px',
+                        fontWeight: 'bold',
+                        transition: 'all 0.2s'
+                    }}
+                >
+                    {darkMode ? "☀️ Modo Claro" : "🌙 Modo Oscuro"}
+                </button>
 
                 <span style={{ fontSize: '0.95em', fontWeight: 'bold', color: '#94a3b8', display: 'flex', alignItems: 'center', gap: '5px' }}>
                     👤 {getUserName()}
@@ -179,26 +201,6 @@ function PanelHeader() {
                 >
                     Cerrar sesión
                 </button>
-                <button
-                    onClick={() => setDarkMode(!darkMode)}
-                    style={{
-                        background: darkMode ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.2)',
-                        border: 'none',
-                        borderRadius: '30px',
-                        padding: '8px 16px',
-                        color: 'white',
-                        cursor: 'pointer',
-                        fontSize: '1em',
-                        display: 'flex',
-                        alignItems: 'center',
-                        gap: '8px',
-                        fontWeight: 'bold',
-                        transition: 'all 0.2s'
-                    }}
-                >
-                    {darkMode ? "☀️ Modo Claro" : "🌙 Modo Oscuro"}
-                </button>
-                <h2 style={{ fontSize: '1.2em', fontWeight: '800', letterSpacing: '0.5px' }}>StockBot Panel</h2>
             </div>
         </header>
     );
