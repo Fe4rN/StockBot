@@ -114,8 +114,27 @@ export const RosProvider = ({ children }) => {
         // Suscribirse a la batería
         const batterySub = new ROSLIB.Topic({ ros: ros, name: '/battery_state', messageType: 'sensor_msgs/msg/BatteryState' });
         batterySub.subscribe((msg) => {
-            if (msg && msg.percentage !== undefined) {
-                setBatteryLevel(Math.round(msg.percentage * 100));
+            if (msg) {
+                // Extraer el valor del voltaje (si no viene, intentamos usar el percentage si está inflado)
+                let raw_voltage = (msg.voltage !== undefined && msg.voltage !== 0) ? msg.voltage : (msg.percentage || 0);
+
+                // Si viene escalado en voltios (ej: 11.1), se multiplica por 1000.
+                // Si viene como entero bruto inflado (ej: 11100), se trata directamente.
+                let voltage_mv = raw_voltage < 20.0 ? raw_voltage * 1000.0 : raw_voltage;
+
+                // Clamping de seguridad entre 9900 mV (0%) y 12600 mV (100%)
+                const min_voltage = 9900.0;
+                const max_voltage = 12600.0;
+                const clamped_mv = Math.max(min_voltage, Math.min(voltage_mv, max_voltage));
+
+                // Interpolación lineal
+                const range = max_voltage - min_voltage;
+                let pct = 0;
+                if (range > 0) {
+                    pct = ((clamped_mv - min_voltage) / range) * 100;
+                }
+
+                setBatteryLevel(Math.round(pct));
             }
         });
 
