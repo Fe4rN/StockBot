@@ -31,9 +31,10 @@ function Teleoperacion() {
     }, []);
 
     const puntosAlmacen = [
-        { id: '1', nombre: 'Estantería 1' },
-        { id: '2', nombre: 'Zona de Cajas 1' },
-        { id: '3', nombre: 'Ejemplo 3 (no hace nada)' },
+        { id: '1', nombre: 'Estantería 1 en Gazebo' },
+        { id: '2', nombre: 'Zona de Cajas 1 en Gazebo' },
+        { id: '3', nombre: 'Punto 3 de Real' },
+        { id: '4', nombre: 'Punto 4 de Real' },
     ];
 
     const puntosFiltrados = puntosAlmacen.filter(p => p.nombre.toLowerCase().includes(busqueda.toLowerCase()));
@@ -125,7 +126,7 @@ function Teleoperacion() {
         const destinoObj = puntosAlmacen.find(p => parseInt(p.id) === pointId);
         const nombreDestino = destinoObj ? destinoObj.nombre : `Punto ${pointId}`;
 
-        let navClient = new ROSLIB.Service({ ros: ros, name: '/ir_a_estanteria', serviceType: 'stock_bot_interfaces/srv/GoToPoint' });
+        let navClient = new ROSLIB.Service({ ros: ros, name: '/ir_a_estanteria', serviceType: '../../stock_bot_interfaces/srv/GoToPoint.srv'});
         setStatusText(`Viajando a destino: ${nombreDestino}...`);
 
         navClient.callService(new ROSLIB.ServiceRequest({ point_id: pointId }), (result) => {
