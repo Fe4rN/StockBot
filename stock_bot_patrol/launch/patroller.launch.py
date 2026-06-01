@@ -14,6 +14,9 @@ from launch import LaunchDescription
 from launch_ros.actions import Node
 
 def generate_launch_description():
+    
+    usaSimulacion = False
+    
     """
     Genera la descripción de lanzamiento para el nodo patroller.
 
@@ -45,6 +48,6 @@ def generate_launch_description():
             executable='patroller',
             name='patroller_node',
             output='screen',
-            parameters=[{'use_sim_time': True}]
+            parameters=[{'use_sim_time': usaSimulacion}]
         ),
     ])

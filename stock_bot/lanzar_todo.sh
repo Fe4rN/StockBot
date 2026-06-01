@@ -55,7 +55,7 @@ sleep 10
 gnome-terminal --tab --title="2. NAV2" -- bash -c "
 source /opt/ros/jazzy/setup.bash; source $WORKSPACE_DIR/install/setup.bash; 
 export TURTLEBOT3_MODEL=burger_cam; 
-ros2 launch stock_bot_nav_punto navigation.launch.py use_sim_time:=True; 
+ros2 launch stock_bot_nav_punto navigation.launch.py use_sim_time:=False; 
 exec bash"
 
 # Terminal 3: Pose Inicial

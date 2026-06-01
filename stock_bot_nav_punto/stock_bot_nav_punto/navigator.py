@@ -49,6 +49,10 @@ class SimpleNavigator(Node):
             self.declare_parameter('punto1', [7.0, -1.0])
             self.declare_parameter('punto2', [8.32, -6.3])
             
+            # Vida real
+            self.declare_parameter('punto3', [-0.87, 0.11])
+            self.declare_parameter('punto4', [-0.387, -0.836])
+            
             self.notif_pub = self.create_publisher(String, '/notificaciones_robot', 10)
 
             self.nav_client = ActionClient(

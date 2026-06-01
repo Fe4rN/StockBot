@@ -17,6 +17,9 @@ from launch.substitutions import LaunchConfiguration
 from launch_ros.actions import Node
 
 def generate_launch_description():
+    
+    usaSimulacion = False
+    
     """
     Configura el stack de navegación, Rviz2 y el nodo de gestión de puntos.
 
@@ -56,7 +59,7 @@ def generate_launch_description():
         print(f"❌ ERROR INESPERADO: {str(e)}")
         sys.exit(1)
 
-    use_sim_time = LaunchConfiguration('use_sim_time', default='true')
+    use_sim_time = LaunchConfiguration('use_sim_time', default=usaSimulacion)
     
     map_dir = LaunchConfiguration(
         'map',
@@ -79,7 +82,7 @@ def generate_launch_description():
 
         DeclareLaunchArgument(
             'use_sim_time',
-            default_value='true',
+            default_value='false',
             description='Use simulation (Gazebo) clock if true'),
 
         IncludeLaunchDescription(

@@ -53,10 +53,8 @@ class PatrollerNode(Node):
 
             # Ruta de patrulla definida por coordenadas del almacén
             self.waypoints_coords = [
-                [7.0, -0.8],
-                [8.32, -6.3],
-                [2.0, -5.0],
-                [0.0, 0.0]
+                [-0.87, 0.11],
+                [-0.387, -0.836]
             ]
             
             self.client = ActionClient(self, FollowWaypoints, 'follow_waypoints', callback_group=self.group)

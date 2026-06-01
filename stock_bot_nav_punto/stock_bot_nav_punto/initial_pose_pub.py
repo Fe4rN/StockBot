@@ -50,11 +50,11 @@ class InitialPosePub(Node):
             msg.header.frame_id = 'map'
             msg.header.stamp = self.get_clock().now().to_msg()
             
-            msg.pose.pose.position.x = 2.231
-            msg.pose.pose.position.y = -2.871
+            msg.pose.pose.position.x = 0.035
+            msg.pose.pose.position.y = 0.1631
             msg.pose.pose.position.z = 0.0
 
-            yaw = 1.571
+            yaw = -3.12194
         
             msg.pose.pose.orientation.z = math.sin(yaw / 2.0)
             msg.pose.pose.orientation.w = math.cos(yaw / 2.0)
