@@ -8,6 +8,10 @@ function Operaciones() {
     // Comprobamos si hay una alerta activa para cambiar colores
     const isAlert = securityAlert !== "Sistema Normal";
 
+    // Calcular KPIs de inventario de manera reactiva
+    const totalTipos = productos.length;
+    const totalStock = productos.reduce((sum, p) => sum + p.Cantidad, 0);
+
     const fetchProductos = () => {
         fetch("http://127.0.0.1:8000/productos/")
             .then(res => res.json())
@@ -49,8 +53,8 @@ function Operaciones() {
     return (
         <div style={{ display: 'flex', flexDirection: 'column', gap: '25px', maxWidth: '1200px', margin: '0 auto', width: '100%', boxSizing: 'border-box' }}>
             
-            {/* Cabecera de Alertas y Modos */}
-            <div style={{ display: 'flex', gap: '20px' }}>
+            {/* Cabecera de Alertas y KPIs de Inventario */}
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '20px' }}>
                 <div style={{ flex: 1, background: 'linear-gradient(90deg, #0a2540 0%, #173d66 100%)', padding: '20px', borderRadius: '16px', color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'space-between', boxShadow: '0 4px 15px rgba(0,0,0,0.1)' }}>
                     <div style={{ display: 'flex', flexDirection: 'column' }}>
                         <span style={{ fontSize: '0.85em', color: '#a3c2e0', textTransform: 'uppercase', letterSpacing: '1px' }}>Modo de Operación</span>
@@ -77,6 +81,48 @@ function Operaciones() {
                         <span style={{ fontSize: '1.4em', fontWeight: 'bold' }}>{securityAlert}</span>
                     </div>
                     <span style={{ fontSize: '2em' }}>{isAlert ? '🚨' : '🛡️'}</span>
+                </div>
+
+                {/* Card 3: Categorías Únicas */}
+                <div style={{ 
+                    flex: 1,
+                    background: darkMode ? 'linear-gradient(135deg, #1e3a8a 0%, #0d1b3e 100%)' : 'linear-gradient(135deg, #e0f2fe 0%, #bae6fd 100%)', 
+                    padding: '20px', 
+                    borderRadius: '16px', 
+                    color: darkMode ? 'white' : '#0369a1',
+                    border: darkMode ? '1px solid rgba(255,255,255,0.08)' : '1px solid #bae6fd',
+                    display: 'flex', 
+                    alignItems: 'center', 
+                    justifyContent: 'space-between', 
+                    boxShadow: '0 4px 15px rgba(0,0,0,0.05)', 
+                    transition: 'all 0.3s' 
+                }}>
+                    <div style={{ display: 'flex', flexDirection: 'column' }}>
+                        <span style={{ fontSize: '0.85em', color: darkMode ? '#93c5fd' : '#0284c7', textTransform: 'uppercase', letterSpacing: '1px' }}>Categorías Únicas</span>
+                        <span style={{ fontSize: '1.4em', fontWeight: 'bold' }}>{totalTipos} tipos</span>
+                    </div>
+                    <span style={{ fontSize: '2em' }}>📦</span>
+                </div>
+
+                {/* Card 4: Total de Productos */}
+                <div style={{ 
+                    flex: 1,
+                    background: darkMode ? 'linear-gradient(135deg, #064e3b 0%, #022c22 100%)' : 'linear-gradient(135deg, #dcfce7 0%, #bbf7d0 100%)', 
+                    padding: '20px', 
+                    borderRadius: '16px', 
+                    color: darkMode ? 'white' : '#15803d',
+                    border: darkMode ? '1px solid rgba(255,255,255,0.08)' : '1px solid #bbf7d0',
+                    display: 'flex', 
+                    alignItems: 'center', 
+                    justifyContent: 'space-between', 
+                    boxShadow: '0 4px 15px rgba(0,0,0,0.05)', 
+                    transition: 'all 0.3s' 
+                }}>
+                    <div style={{ display: 'flex', flexDirection: 'column' }}>
+                        <span style={{ fontSize: '0.85em', color: darkMode ? '#6ee7b7' : '#16a34a', textTransform: 'uppercase', letterSpacing: '1px' }}>Stock en Almacén</span>
+                        <span style={{ fontSize: '1.4em', fontWeight: 'bold' }}>{totalStock} uds</span>
+                    </div>
+                    <span style={{ fontSize: '2em' }}>📊</span>
                 </div>
             </div>
 

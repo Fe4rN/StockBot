@@ -156,7 +156,7 @@ function PanelHeader() {
                             onMouseLeave={(e) => e.target.style.background = 'rgba(74, 222, 128, 0.15)'}
                             title="Simular cambio de batería (Reset a 100%)"
                         >
-                            🔄 Cambiar
+                            🔄 Rellenar
                         </button>
                     )}
                 </div>
