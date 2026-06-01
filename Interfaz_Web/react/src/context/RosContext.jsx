@@ -111,7 +111,10 @@ export const RosProvider = ({ children }) => {
             setPatrolMode(msg.data);
         });
 
-        // Suscribirse a la batería
+        // Suscribirse a la batería con promedio acumulado cada 15 segundos
+        let batteryBuffer = [];
+        let hasSetInitial = false;
+
         const batterySub = new ROSLIB.Topic({ ros: ros, name: '/battery_state', messageType: 'sensor_msgs/msg/BatteryState' });
         batterySub.subscribe((msg) => {
             if (msg) {
@@ -134,9 +137,25 @@ export const RosProvider = ({ children }) => {
                     pct = ((clamped_mv - min_voltage) / range) * 100;
                 }
 
-                setBatteryLevel(Math.round(pct));
+                batteryBuffer.push(pct);
+
+                // Si es el primer dato que recibimos, lo mostramos de inmediato
+                if (!hasSetInitial) {
+                    setBatteryLevel(Math.round(pct));
+                    hasSetInitial = true;
+                }
             }
         });
+
+        // Intervalo para promediar y actualizar la interfaz cada 15 segundos
+        const averageInterval = setInterval(() => {
+            if (batteryBuffer.length > 0) {
+                const sum = batteryBuffer.reduce((a, b) => a + b, 0);
+                const avg = sum / batteryBuffer.length;
+                setBatteryLevel(Math.round(avg));
+                batteryBuffer = []; // Reset del buffer
+            }
+        }, 15000);
 
         // Suscribirse a la odometría (Velocidad y Orientación)
         const odomSub = new ROSLIB.Topic({ ros: ros, name: '/odom', messageType: 'nav_msgs/msg/Odometry' });
@@ -182,6 +201,7 @@ export const RosProvider = ({ children }) => {
             batterySub.unsubscribe();
             odomSub.unsubscribe();
             scanSub.unsubscribe();
+            clearInterval(averageInterval);
         };
     }, [ros, isConnected]);
 

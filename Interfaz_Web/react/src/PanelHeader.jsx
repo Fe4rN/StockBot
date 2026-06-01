@@ -43,6 +43,7 @@ function PanelHeader() {
     };
 
     const isLowBattery = batteryLevel <= 20;
+    const isRealRobot = isConnected && !address.includes('127.0.0.1') && !address.includes('localhost');
 
     return (
         <header className="topbar" style={{
@@ -136,26 +137,28 @@ function PanelHeader() {
                         </span>
                         {isLowBattery && <span className="blink-critical" style={{ fontSize: '0.85em', color: '#ef4444' }}>(CRÍTICA)</span>}
                     </span>
-                    <button
-                        onClick={() => setBatteryLevel(100)}
-                        style={{
-                            background: 'rgba(74, 222, 128, 0.15)',
-                            border: '1px solid rgba(74, 222, 128, 0.3)',
-                            borderRadius: '4px',
-                            color: '#4ade80',
-                            cursor: 'pointer',
-                            fontSize: '0.75em',
-                            fontWeight: 'bold',
-                            padding: '2px 6px',
-                            marginLeft: '6px',
-                            transition: 'all 0.2s'
-                        }}
-                        onMouseEnter={(e) => e.target.style.background = 'rgba(74, 222, 128, 0.3)'}
-                        onMouseLeave={(e) => e.target.style.background = 'rgba(74, 222, 128, 0.15)'}
-                        title="Simular cambio de batería (Reset a 100%)"
-                    >
-                        🔄 Cambiar
-                    </button>
+                    {!isRealRobot && (
+                        <button
+                            onClick={() => setBatteryLevel(100)}
+                            style={{
+                                background: 'rgba(74, 222, 128, 0.15)',
+                                border: '1px solid rgba(74, 222, 128, 0.3)',
+                                borderRadius: '4px',
+                                color: '#4ade80',
+                                cursor: 'pointer',
+                                fontSize: '0.75em',
+                                fontWeight: 'bold',
+                                padding: '2px 6px',
+                                marginLeft: '6px',
+                                transition: 'all 0.2s'
+                            }}
+                            onMouseEnter={(e) => e.target.style.background = 'rgba(74, 222, 128, 0.3)'}
+                            onMouseLeave={(e) => e.target.style.background = 'rgba(74, 222, 128, 0.15)'}
+                            title="Simular cambio de batería (Reset a 100%)"
+                        >
+                            🔄 Cambiar
+                        </button>
+                    )}
                 </div>
 
                 <span style={{ fontSize: '0.95em', fontWeight: 'bold', color: '#94a3b8', display: 'flex', alignItems: 'center', gap: '5px' }}>
