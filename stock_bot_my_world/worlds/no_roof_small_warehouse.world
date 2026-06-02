@@ -277,7 +277,7 @@
     <include>
       <uri>model://operario_autorizado</uri>
       <name>operario_autorizado_ventana</name>
-      <pose>2.3204 -5.8254 0.0000 0 0 3.1416</pose> 
+      <pose>-4.1574 -3.3079 0.9821 0 0 2.1141</pose> 
     </include>
 
   </world>

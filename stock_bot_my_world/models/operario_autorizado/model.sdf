@@ -17,11 +17,15 @@
           </box>
         </geometry>
         <material>
-          <script>
-            <uri>model://operario_autorizado/materials/scripts</uri>
-            <uri>model://operario_autorizado/materials/textures</uri>
-            <name>Operario/BrazaleteVerde</name>
-          </script>
+          <ambient>1 1 1 1</ambient>
+          <diffuse>1 1 1 1</diffuse>
+          <pbr>
+            <metal>
+              <albedo_map>model://operario_autorizado/materials/textures/foto_operario.png</albedo_map>
+              <roughness>1.0</roughness>
+              <metalness>0.0</metalness>
+            </metal>
+          </pbr>
         </material>
       </visual>
     </link>

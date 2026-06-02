@@ -93,7 +93,21 @@ class StockBotChat(Node):
         datos = msg.data
         if " está " in datos:
             ventana, estado = datos.split(" está ", 1)
+            try:
+                # Extraer y redondear coordenadas (ej: "Ventana en (124,98)")
+                if "(" in ventana and ")" in ventana:
+                    coords_str = ventana.split("(")[-1].split(")")[0]
+                    x_str, y_str = coords_str.split(",")
+                    x_rounded = round(int(x_str) / 100) * 100
+                    y_rounded = round(int(y_str) / 100) * 100
+                    ventana = f"Ventana en ({x_rounded},{y_rounded})"
+            except Exception:
+                pass
             self.ventanas[ventana] = estado
+            # Evitar acumulación infinita limitando a las 5 ventanas más recientes
+            if len(self.ventanas) > 5:
+                primera_clave = next(iter(self.ventanas))
+                self.ventanas.pop(primera_clave)
 
     def obtener_ultimos_avisos(self):
         import requests
