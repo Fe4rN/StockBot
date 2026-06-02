@@ -1,0 +1,15 @@
+material Operario/BrazaleteVerde
+{
+  technique
+  {
+    pass
+    {
+      texture_unit
+      {
+        texture foto_operario.png
+        filtering anisotropic
+        max_anisotropy 16
+      }
+    }
+  }
+}
